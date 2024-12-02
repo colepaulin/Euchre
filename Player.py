@@ -1,5 +1,6 @@
 from Card import Card
 from Strategy import Strategy
+from Deck import Deck
 from typing import List
 
 class Player:
@@ -44,6 +45,18 @@ class Player:
         """
         self.cardsInHand.extend(newCards)
     
+    def discardThenDraw(self, deck: Deck):
+        """
+        Discards a card from the player's hand based on their strategy and draws a new card from the deck.
+
+        :param deck: The deck of cards to draw from.
+        """
+        discard = self.cardsInHand.pop() # TODO use strat
+        new_card = deck.drawCard()
+        self.cardsInHand.append(new_card)
+        deck.addCard(discard)
+
+    
     def playCard(self, card: Card):
         """
         Plays a card from the player's hand and updates the player's state accordingly.
@@ -51,6 +64,8 @@ class Player:
         :param card: The card to be played.
         :return: The played card.
         :raises ValueError: If the card is not in the player's hand.
+
+        NOTE this will be based on strategy in future
         """
         if card in self.cardsInHand:
             self.cardsInHand.remove(card)
@@ -58,6 +73,16 @@ class Player:
             return card
         else:
             raise ValueError("The card is not in the player's hand.")
+    
+    def passOrPlay(self, faceUpCard: Card):
+        """
+        Logic for deciding to pass or play in the bidding phase. This
+        will depend on strategy. 
+
+        :param faceUpCard: Card that is face up when bidding
+        :return: "Pass" or "Play"
+        """
+        return "Play" # TODO
     
     def newHand(self):
         """

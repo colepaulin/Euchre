@@ -13,4 +13,20 @@ class Team:
         """
         self.p1 = p1
         self.p2 = p2
-        self.calledTrump: bool = False
+        self.declaredTrump: bool = False
+        self.score: int = 0
+    
+    def setTrumpStatus(self, declaredTrump: bool):
+        """
+        updates if a team declared trump or not
+
+        :param declaredTrump: whether or not the team declared trump
+        """
+        self.declaredTrump = declaredTrump
+    
+    def addPoints(self, addedPoints: int):
+        self.score += addedPoints
+    
+    def reset(self):
+        self.score = 0
+        self.declaredTrump = False

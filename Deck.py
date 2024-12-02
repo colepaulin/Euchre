@@ -15,15 +15,23 @@ class Deck:
         self.ranks = self.all_ranks[start_index:]
 
         # Generate cards with the filtered ranks
+        self.cards = self.resetCards()
+    
+    def resetCards(self):
+        """Resets all cards in the deck to their initial state."""
         self.cards = [Card(rank, suit) for suit in self.suits for rank in self.ranks]
 
     def shuffle(self):
         """Shuffles the deck."""
         random.shuffle(self.cards)
 
-    def draw_card(self):
+    def drawCard(self):
         """Draws a card from the deck. Returns None if the deck is empty."""
         return self.cards.pop() if self.cards else None
+    
+    def addCard(self, card):
+        """Adds a new card to the deck."""
+        self.cards.append(card)
 
     def __len__(self):
         """Returns the number of cards left in the deck."""
