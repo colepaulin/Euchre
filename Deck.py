@@ -43,7 +43,6 @@ class Deck:
         :param cardsPerPlayer: the number of cards each player recieves
         :param order: the order to deal the cards
         """
-        dealt_cards = []
         for player in order:
             player_cards = [self.drawCard() for _ in range(cardsPerPlayer)]
             player.addCards(player_cards)

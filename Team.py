@@ -26,21 +26,37 @@ class Team:
         self.declaredTrump = declaredTrump
     
     def addEuchrePoints(self, addedPoints: int):
+        """
+        add Euchre points (overall game score)
+        """
         self.euchreScore += addedPoints
     
     def addHandePoints(self, addedPoints: int):
+        """
+        add Hand points (points in a specific hand)
+        """
         self.handScore += addedPoints
     
     def isGoingAlone(self):
+        """
+        test to see if the team is going alone
+        """
         return self.p1.isGoingAlone or self.p2.isGoingAlone
     
     def resetHand(self):
+        """
+        used to reset each players hand and reset the hand score and set declared
+        trump to false
+        """
         self.handScore = 0
         self.declaredTrump = False
-        self.p1.setTrumpStatus(False)
-        self.p2.setTrumpStatus(False)
-        
+        self.p1.newHand()
+        self.p2.newHand()
+
     
     def resetEuchre(self):
+        """
+        reset the game of euchre
+        """
         self.euchreScore = 0
         self.declaredTrump = False

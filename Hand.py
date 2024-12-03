@@ -12,34 +12,90 @@ EUCHRE_SCORE = 2
 MAJORITY_TRICK_SCORE = 1
 
 class Hand:
+    """
+    Represents a hand in Euchre. A hand is made up of bidding, then 5 tricks. 
+    Each hand is in charge of reshuffling the cards and dealing them.
+
+    Attributes:
+        trumpSuit: the declared trump suit
+        order: list of players in their turn order. This can be adjusted in bidding phase
+                and trick phase
+        faceUpCard: the face up card during the bidding stage
+        handHistory: List of trick histories.
+                    each trick history is of the form
+                            [CardA, CardB, CardC, cardD, leadPlayerId]
+                    where CardA is the first card played, then cardB, etc
+    """
     def __init__(self, order: List[Player], teams: List[Team], deck: Deck, cardsPerPlayer: int = 5):
+        """
+        shuffles the deck of cards and deals them to start new hand
+
+        :param order: list of players in their turn order.
+        :param teams: list of the 2 teams
+        :param deck: the deck of playing cards
+        :param cardsPerPlayer: the number of cards to deal each person (default 5)
+        """
         self.cardsPerPlayer = cardsPerPlayer
-        self.trump = None
+        self.trumpSuit = None
         self.order = order
         self.teams = teams
-        self.tricks: List[Trick] = [Trick() for _ in range(self.cardsPerPlayer)] # TODO trick initialization
-        deck.resetCardsAndShuffle() 
+        self.deck = deck
+        self.deck.resetCardsAndShuffle() 
         self.dealCards()
-        self.faceUpCard: Card = deck.drawCard()
+        self.faceUpCard: Card = self.deck.drawCard()
+        self.handHistory = []
     
     def playHand(self):
+        """
+        Each hand consists of a bidding phase, then the tricks.
+        It them calculates hand score into a euchre score. It then resets 
+        both teams' hand. Updates the teams Euchre points by updating Team 
+        attribute
+        """
         self.biddingPhase()
         self.playTricks()
         self.handToEuchreScoreConv()
-        self.resetTeamInfo()
+        for team in self.teams:
+            team.resetHand()
     
-    def dealCards(self, deck: Deck):
-        deck.dealCards(self.cardsPerPlayer, self.order)
+    def dealCards(self):
+        """
+        Deal the deck of cards accoding to the order
+        """
+        self.deck.dealCards(self.cardsPerPlayer, self.order)
     
     def biddingPhase(self):
+        """
+        play the bidding phase. It should be based on the score, the order,
+        the face up card, and the cards in the players hand. Updates
+        all necessary attributes dynamically
+        """
         # TODO FIX TO INCORPORATE BIDDING
         # bidding.run(self.faceUpCard, self.order)
     
     def playTricks(self):
-        for trick in self.tricks:
-            trick.play() # NOTE must update the team.handScore
-    
+        """
+        Plays a trick for each card in hand (typically 5 for Euchre). 
+        After each trick, update the handHistory
+        """
+        for round in range(self.cardsPerPlayer):
+            trick = Trick(self.teams, self.order, self.trumpSuit, self.handHistory)
+            trickHistory = trick.playTrick()
+            self.handHistory.append(trickHistory)
+            
     def handToEuchreScoreConv(self):
+        """
+        Converts the score of the hand to a Euchre score
+        Rules:
+            trump declaring team scores as follows
+                5 hands and going alone   : +4
+                5 hands (march)           : +2
+                3 <= hands < 5 (majority) : +1
+            nontrump declaring team scores as follows
+                >= 3 hands                : +2
+        
+        Adds euchre points to each team dynamically
+        """
         team1: Team = self.teams[0]
         team2: Team = self.teams[1]
         trumpTeam: Team = team1 if team1.declaredTrump else team2
@@ -57,10 +113,6 @@ class Hand:
         
         else:
             nonTrumpTeam.addEuchrePoints(EUCHRE_SCORE)
-        
-    def resetTeamInfo(self):
-        for team in self.teams:
-            team.resetHand()
             
 
 

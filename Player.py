@@ -1,6 +1,7 @@
 from Card import Card
 from Strategy import Strategy
 from Deck import Deck
+from Team import Team
 from typing import List
 
 class Player:
@@ -54,44 +55,51 @@ class Player:
         """
         self.cardsInHand.extend(newCards)
     
-    def discardThenDraw(self, deck: Deck):
+    def discard(self):
         """
-        Discards a card from the player's hand based on their strategy and draws a new card from the deck.
-
-        :param deck: The deck of cards to draw from.
+        Discards a card from the player's hand based on their strategy
+        Assumes 1 extra card in player cardsInHand.
         """
-        discard = self.cardsInHand.pop() # TODO use strat
-        new_card = deck.drawCard()
-        self.cardsInHand.append(new_card)
-        deck.addCard(discard)
+        self.strategy.discard(self)
 
     
-    def playCard(self, card: Card):
+    def playCard(self, trumpSuit, leadSuit, teams: List[Team], handHistory, trickHistory) -> Card:
         """
-        Plays a card from the player's hand and updates the player's state accordingly.
+        Plays a card from the player's hand based on game and strategy
 
-        :param card: The card to be played.
-        :return: The played card.
-        :raises ValueError: If the card is not in the player's hand.
-
-        NOTE this will be based on strategy in future
+        :param trumpSuit: the trump suit
+        :param leadSuit: The lead suit in the trick
+        :param teams: A list of the teams
+        :param handHistory: see Hand Class
+        :param trickHistory: see Trick Class
         """
-        if card in self.cardsInHand:
-            self.cardsInHand.remove(card)
-            self.cardsPlayed.append(card)
-            return card
-        else:
-            raise ValueError("The card is not in the player's hand.")
+        return self.strategy.playCard(self,
+                                       trumpSuit, 
+                                       leadSuit, 
+                                       teams, 
+                                       handHistory, 
+                                       trickHistory)
     
-    def passOrPlay(self, faceUpCard: Card):
+    def passOrPlay(self, teams: List[Team], faceUpCard: Card | None, biddingOrder):
         """
-        Logic for deciding to pass or play in the bidding phase. This
-        will depend on strategy. 
+        Decision to pass or play in bidding phase based on strategy
 
-        :param faceUpCard: Card that is face up when bidding
-        :return: "Pass" or "Play"
+        :param teams: list of the teams
+        :param faceUpCard: Card that is face up when bidding, None if no face up card
+        :param biddingOrder: list of players which represents the bidding order
+        :return: True if player plays, false otherwise
         """
-        return "Play" # TODO
+        return self.strategy.passOrPlay(self, teams, faceUpCard, biddingOrder)
+
+    def shouldGoAlone(self, teams: List[Team], trumpSuit):
+        """
+        Decides whether to go alone or not based on the strategy
+
+        :param teams: list of the teams
+        :param trumpSuit: The trump suit
+        :returns True if going alone, false otherwise
+        """
+        return self.strategy.shouldGoAlone(self, trumpSuit, teams)
     
     def newHand(self):
         """
