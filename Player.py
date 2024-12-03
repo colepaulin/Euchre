@@ -90,6 +90,13 @@ class Player:
         :return: True if player plays, false otherwise
         """
         return self.strategy.passOrPlay(self, teams, faceUpCard, biddingOrder)
+    
+    def chooseTrump(self):
+        """
+        Player chooses the optimal trump suit in a face down bidding round based on
+        their hand
+        """
+        return self.strategy.chooseTrump(self)
 
     def shouldGoAlone(self, teams: List[Team], trumpSuit):
         """
