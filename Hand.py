@@ -78,7 +78,8 @@ class Hand:
         bidding = Bidding(self.faceUpCard, self.order, self.teams)
         bidding.run()
         self.trumpSuit = bidding.trump
-        self.order.remove(bidding.goAloneGuy.partner)
+        if bidding.goAloneGuy:
+            self.order.remove(bidding.goAloneGuy.partner)
     
     def playTricks(self):
         """
