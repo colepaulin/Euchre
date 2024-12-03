@@ -4,7 +4,7 @@ class Team:
     """
     Represents a team in the Euchre game, consisting of two players.
     """
-    def __init__(self, p1: Player, p2: Player):
+    def __init__(self, p1: Player, p2: Player, name: str):
         """
         Initializes a Team instance with two Player objects and sets the initial state of calledTrump to False.
 
@@ -17,6 +17,7 @@ class Team:
         self.p2.partner = p1
         self.p1.setTeam(self)
         self.p2.setTeam(self)
+        self.name = name
         self.declaredTrump: bool = False
         self.euchreScore: int = 0
         self.handScore: int = 0

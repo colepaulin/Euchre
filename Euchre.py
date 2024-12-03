@@ -81,8 +81,8 @@ def main():
     TGod = Player(2, RandomStrategy())
     Chris = Player(3, RandomStrategy())
 
-    Republicans = Team(Cole, Jack)
-    Democrats = Team(TGod, Chris)
+    Republicans = Team(Cole, Jack, "Republicans")
+    Democrats = Team(TGod, Chris, "Democrats")
 
     game = Euchre(Republicans, Democrats, )
     game.playEuchre()

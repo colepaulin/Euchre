@@ -30,7 +30,8 @@ class RandomStrategy(Strategy):
     def shouldGoAlone(self, player: Player, 
                       trumpSuit, 
                       teams: List[Team]) -> bool:
-        return random.choice([True, False])
+        # return random.choice([True, False])
+        return False
     
     def chooseTrump(self, player: Player):
         return random.choice(['H','C','S','D'])
