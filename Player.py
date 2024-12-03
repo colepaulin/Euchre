@@ -20,6 +20,7 @@ class Player:
         self.strategy = strategy
         self.cardsInHand: List[Card] = []
         self.cardsPlayed: List[Card] = []
+        self.isGoingAlone: bool = False
 
     def setDealerStatus(self, isDealer: bool):
         """
@@ -36,6 +37,14 @@ class Player:
         :param declaredTrump: Boolean indicating if the player has declared trump.
         """
         self.declaredTrump = declaredTrump
+    
+    def setGoingAloneStatus(self, isGoingAlone: bool):
+        """
+        Sets the going alone status for the player.
+
+        :param isGoingAlone: Boolean indicating if the player is going alone
+        """
+        self.isGoingAlone = isGoingAlone
 
     def addCards(self, newCards: List[Card]):
         """
@@ -92,6 +101,7 @@ class Player:
         self.cardsPlayed = []
         self.declaredTrump = False
         self.isDealer = False
+        self.isGoingAlone = False
 
     def __eq__(self, other):
         """

@@ -1,5 +1,7 @@
 import random
 from Card import Card
+from Player import Player
+from typing import List
 class Deck:
     """Represents a customizable deck of playing cards."""
     all_ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"]
@@ -17,21 +19,34 @@ class Deck:
         # Generate cards with the filtered ranks
         self.cards = self.resetCards()
     
-    def resetCards(self):
+    def resetCardsAndShuffle(self):
         """Resets all cards in the deck to their initial state."""
         self.cards = [Card(rank, suit) for suit in self.suits for rank in self.ranks]
+        self.shuffle()
 
     def shuffle(self):
         """Shuffles the deck."""
         random.shuffle(self.cards)
 
     def drawCard(self):
-        """Draws a card from the deck. Returns None if the deck is empty."""
-        return self.cards.pop() if self.cards else None
+        """Draws a card from the deck"""
+        return self.cards.pop()
     
     def addCard(self, card):
         """Adds a new card to the deck."""
         self.cards.append(card)
+    
+    def dealCards(self, cardsPerPlayer: int, order: List[Player]):
+        """
+        Deals cards to players from the top of the deck.
+
+        :param cardsPerPlayer: the number of cards each player recieves
+        :param order: the order to deal the cards
+        """
+        dealt_cards = []
+        for player in order:
+            player_cards = [self.drawCard() for _ in range(cardsPerPlayer)]
+            player.addCards(player_cards)
 
     def __len__(self):
         """Returns the number of cards left in the deck."""

@@ -14,7 +14,8 @@ class Team:
         self.p1 = p1
         self.p2 = p2
         self.declaredTrump: bool = False
-        self.score: int = 0
+        self.euchreScore: int = 0
+        self.handScore: int = 0
     
     def setTrumpStatus(self, declaredTrump: bool):
         """
@@ -24,9 +25,22 @@ class Team:
         """
         self.declaredTrump = declaredTrump
     
-    def addPoints(self, addedPoints: int):
-        self.score += addedPoints
+    def addEuchrePoints(self, addedPoints: int):
+        self.euchreScore += addedPoints
     
-    def reset(self):
-        self.score = 0
+    def addHandePoints(self, addedPoints: int):
+        self.handScore += addedPoints
+    
+    def isGoingAlone(self):
+        return self.p1.isGoingAlone or self.p2.isGoingAlone
+    
+    def resetHand(self):
+        self.handScore = 0
+        self.declaredTrump = False
+        self.p1.setTrumpStatus(False)
+        self.p2.setTrumpStatus(False)
+        
+    
+    def resetEuchre(self):
+        self.euchreScore = 0
         self.declaredTrump = False
