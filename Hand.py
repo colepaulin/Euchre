@@ -4,6 +4,7 @@ from Deck import Deck
 from Card import Card
 from Bidding import Bidding
 from typing import List
+from Utils import determineTrickWinner
 from Team import Team
 
 GOING_ALONE_MARCH_SCORE = 4
@@ -25,6 +26,7 @@ class Hand:
                     each trick history is of the form
                             [CardA, CardB, CardC, cardD, leadPlayerId]
                     where CardA is the first card played, then cardB, etc
+        recentTrick: The most recent trick of format shown above
     """
     def __init__(self, order: List[Player], teams: List[Team], deck: Deck, cardsPerPlayer: int = 5):
         """
@@ -44,6 +46,7 @@ class Hand:
         self.dealCards()
         self.faceUpCard: Card = self.deck.drawCard()
         self.handHistory = []
+        self.recentTrick = []
     
     def playHand(self):
         """
@@ -80,9 +83,44 @@ class Hand:
         """
         for round in range(self.cardsPerPlayer):
             trick = Trick(self.teams, self.order, self.trumpSuit, self.handHistory)
-            trickHistory = trick.playTrick()
-            self.handHistory.append(trickHistory)
-            
+            self.recentTrick = trick.playTrick()
+            self.handHistory.append(self.recentTrick)
+            self.updateOrderAfterTrick()
+    
+    def updateOrderAfterTrick(self):
+        """
+        Update the order based on the previous trick.
+        Whichever player won the previous trick will go first. 
+        The rotation order will stay the same
+        """
+        winnerId = self.trickWinner().id
+        winnerIndex = next(i for i, p in enumerate(self.order) if p.id == winnerId)
+        self.order = self.order[winnerIndex:] + self.order[:winnerIndex]
+
+    def trickWinner(self) -> Player:
+        """
+        Determine the winner of the most recent trick.
+        
+        The winning card is determined by:
+        1. Highest trump suit card if any trump cards were played
+        2. Otherwise, highest card of the lead suit
+        
+        Returns:
+            Player: The player who won the trick
+        """
+        leadCard = self.recentTrick[0]
+        leadSuit = leadCard.suit
+        leadPlayerId = self.recentTrick[4]
+        
+        # Find the lead player's position in the order
+        leadPlayerIndex = next(i for i, p in enumerate(self.order) if p.id == leadPlayerId)
+        
+        # Map cards to their players in play order
+        cards_played = self.recentTrick[:4]  # Get just the cards
+        player_indices = [(leadPlayerIndex + i) % 4 for i in range(4)]  # Get indices in play order
+        card_player_pairs = list(zip(cards_played, [self.order[i] for i in player_indices]))        
+        return determineTrickWinner(self.trumpSuit, leadSuit, card_player_pairs)
+
     def handToEuchreScoreConv(self):
         """
         Converts the score of the hand to a Euchre score

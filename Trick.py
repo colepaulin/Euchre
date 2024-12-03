@@ -47,3 +47,4 @@ class Trick:
         
         return self.trickHistory
 
+
