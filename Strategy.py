@@ -12,7 +12,7 @@ class Strategy(ABC):
     must follow. Each strategy must implement methods for making key decisions
     during gameplay.
     """
-
+    
     @abstractmethod
     def passOrPlay(self, player: Player, 
                    teams: List[Team], 
@@ -28,6 +28,14 @@ class Strategy(ABC):
                             has been flipped over
         :param biddingOrder: The order that the players are bidding
         :returns True if the player decides to play, False otherwise
+        """
+        pass
+
+    @abstractmethod
+    def chooseTrump(self, player: Player) -> str:
+        """
+        Player chooses the optimal trump suit in a face down bidding round based on
+        their hand
         """
         pass
 
