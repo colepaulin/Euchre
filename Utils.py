@@ -2,7 +2,7 @@ from Player import Player
 from Card import Card
 from typing import List
 
-def determineTrickWinner(trumpSuit: str, leadSuit: str, cardPlayerPairs: List[(Card, Player)]) -> Player:
+def determineTrickWinner(trumpSuit: str, leadSuit: str, cardPlayerPairs) -> Player: # : List[(Card, Player)]
     def getComplementSuit(trumpSuit: str) -> str:
         """
         return the suit that is same color as trumpsuit
@@ -34,7 +34,7 @@ def determineTrickWinner(trumpSuit: str, leadSuit: str, cardPlayerPairs: List[(C
         else:
             return cardB
     
-    def findBestTrump(trumpCardPairs: List[(Card, Player)]) -> Player:
+    def findBestTrump(trumpCardPairs) -> Player: # trumpCardPairs : List[(Card, Player)]
         """
         return the best card of the trumpcardpairs
         based on Right > Left > Rank
@@ -58,7 +58,7 @@ def determineTrickWinner(trumpSuit: str, leadSuit: str, cardPlayerPairs: List[(C
         
         return highCardPlayer
 
-    def findHighestCardPlayer(cardPlayerPairs: List[(Card, Player)]) -> Player:
+    def findHighestCardPlayer(cardPlayerPairs) -> Player: # cardPlayerPairs : List[(Card, Player)]
         highCard = None
         highPlayer = None
         for (c, p) in cardPlayerPairs:

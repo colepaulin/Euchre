@@ -1,0 +1,15 @@
+make sure to add setTrumpStatus to bidding phase
+move resetHand from Teams to Euchre()
+probably get rid of resetEuchre() in Teams
+use setDealerStatus() from Player
+add methods to fill .team and .partner for Player
+1. consider discarding back into Deck
+2. shuffle between hands
+trickHistory has 5 indeces?
+consider passing score into Player methods rather than teams
+** dealer is last in the order
+consider moving who wins trick into Trick
+break bidding up into segments, make go alone a method
+does Hand.leadPlayerIndex() work?
+Fix circular imports
+update Player.team and Player.partner

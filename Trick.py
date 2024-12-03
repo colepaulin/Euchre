@@ -36,12 +36,12 @@ class Trick:
         :returns a complete trickHistory
         """
         leadPlayer = self.order[0]
-        leadCard: Card = leadPlayer.playCard(self.trumpSuit, None, self.handHistory, self.trickHistory)
+        leadCard: Card = leadPlayer.playCard(self.trumpSuit, None, self.teams, self.handHistory, self.trickHistory)
         self.trickHistory[0] = leadCard
         self.trickHistory[-1] = leadPlayer.id
         arrIdx = 1
         for player in self.order[1:]:
-            playedCard = player.playCard(self.trumpSuit, leadCard.suit, self.handHistory, self.trickHistory)
+            playedCard = player.playCard(self.trumpSuit, leadCard.suit, self.teams, self.handHistory, self.trickHistory)
             self.trickHistory[arrIdx] = playedCard
             arrIdx += 1
         

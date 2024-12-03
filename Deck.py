@@ -17,7 +17,7 @@ class Deck:
         self.ranks = self.all_ranks[start_index:]
 
         # Generate cards with the filtered ranks
-        self.cards = self.resetCards()
+        self.cards = self.resetCardsAndShuffle()
     
     def resetCardsAndShuffle(self):
         """Resets all cards in the deck to their initial state."""

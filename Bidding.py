@@ -21,10 +21,13 @@ class Bidding:
         for player in self.order: # first round (face up card)
             if player.passOrPlay(self.teams, self.card, self.order):
                 dealer = self.order[-1]
-                dealer.addCards([self.card]) # add that card to the DEALER'S hand
+                dealer.addCard(self.card) # add that card to the DEALER'S hand
                 dealer.discard()
                 self.trump = self.card.suit
+                player.declaredTrump = True
+                player.team.declaredTrump = True
                 
+                # make modular
                 if player.shouldGoAlone(self.teams, self.trump): # logic for going alone
                     self.goAloneGuy = player
                 else:
@@ -42,6 +45,8 @@ class Bidding:
         for player in self.order: # second round (face down card)
             if player.passOrPlay(self.teams, None, self.order):
                 self.trump = player.chooseTrump() # once the decision has been made to play, choose trump
+                player.declaredTrump = True
+                player.team.declaredTrump = True
 
                 if player.shouldGoAlone(self.teams, self.trump): # logic for going alone
                     self.goAloneGuy = player
@@ -59,6 +64,8 @@ class Bidding:
         if self.trump == None: # dealer is screwed
             dealer = self.order[-1]
             self.trump = dealer.chooseTrump()
+            dealer.declaredTrump = True
+            dealer.team.declaredTrump = True
             
             if dealer.shouldGoAlone(self.teams, self.trump): # logic for going alone
                     self.goAloneGuy = dealer

@@ -13,7 +13,7 @@ class RandomStrategy(Strategy):
 
     def passOrPlay(self, player: Player, 
                    teams: List[Team], 
-                   faceUpCard: Card | None, 
+                   faceUpCard, #: Card | None, 
                    biddingOrder: List[Player]) -> bool:
         """
         randomly decide to pass or play. 
@@ -31,6 +31,9 @@ class RandomStrategy(Strategy):
                       trumpSuit, 
                       teams: List[Team]) -> bool:
         return random.choice([True, False])
+    
+    def chooseTrump(self, player: Player):
+        return random.choice(['H','C','S','D'])
 
     def playCard(self, player: Player, 
                  trumpSuit,

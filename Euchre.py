@@ -1,6 +1,8 @@
 from Team import Team
 from Hand import Hand
 from Deck import Deck
+from Player import Player
+from RandomStrategy import RandomStrategy
 import random
 
 class Euchre:
@@ -10,7 +12,7 @@ class Euchre:
     def __init__(self, 
                  t1: Team, 
                  t2: Team, 
-                 lowBoundCardRank: int = 9, 
+                 lowBoundCardRank: str = "9", 
                  cardsPerPlayer: int = 5):
         """
         Start a game of Euchre with 2 teams. The starting order
@@ -22,7 +24,7 @@ class Euchre:
         """
         self.t1 = t1
         self.t2 = t2
-        self.teams = [self,t1, self.t2]
+        self.teams = [self.t1, self.t2]
         self.deck = Deck(lowBoundCardRank)
         self.order = self.initializeOrder()
         self.cardsPerPlayer = cardsPerPlayer
@@ -71,3 +73,19 @@ class Euchre:
             return False
 
         
+# main.py
+def main():
+    print("Hello, World!")
+    Cole = Player(0, RandomStrategy())
+    Jack = Player(1, RandomStrategy())
+    TGod = Player(2, RandomStrategy())
+    Chris = Player(3, RandomStrategy())
+
+    Republicans = Team(Cole, Jack)
+    Democrats = Team(TGod, Chris)
+
+    game = Euchre(Republicans, Democrats, )
+    game.playEuchre()
+
+if __name__ == "__main__":
+    main()

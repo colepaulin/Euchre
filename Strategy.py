@@ -16,7 +16,7 @@ class Strategy(ABC):
     @abstractmethod
     def passOrPlay(self, player: Player, 
                    teams: List[Team], 
-                   faceUpCard: Card | None, 
+                   faceUpCard, # Card | None
                    biddingOrder: List[Player]) -> bool:
         """
         The strategy to pass or play in the bidding stage. A player must know

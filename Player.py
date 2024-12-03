@@ -1,14 +1,11 @@
 from Card import Card
-from Strategy import Strategy
-from Deck import Deck
-from Team import Team
 from typing import List
 
 class Player:
     """
     Represents a player in the Euchre game.
     """
-    def __init__(self, id: int, strategy: Strategy):
+    def __init__(self, id: int, strategy):
         """
         Initializes a Player instance with a unique identifier and a strategy for gameplay.
 
@@ -22,7 +19,12 @@ class Player:
         self.cardsInHand: List[Card] = []
         self.cardsPlayed: List[Card] = []
         self.isGoingAlone: bool = False
+        self.partner: Player
+        self.team = None
 
+    def setTeam(self, team):
+        self.team = team
+    
     def setDealerStatus(self, isDealer: bool):
         """
         Sets the dealer status for the player.
@@ -47,6 +49,14 @@ class Player:
         """
         self.isGoingAlone = isGoingAlone
 
+    def addCard(self, newCard: Card):
+        """
+        Adds new card to the player's hand.
+
+        :param newCard: A Card object to be added to the player's hand.
+        """
+        self.cardsInHand.append(newCard)
+    
     def addCards(self, newCards: List[Card]):
         """
         Adds new cards to the player's hand.
@@ -63,7 +73,7 @@ class Player:
         self.strategy.discard(self)
 
     
-    def playCard(self, trumpSuit, leadSuit, teams: List[Team], handHistory, trickHistory) -> Card:
+    def playCard(self, trumpSuit, leadSuit, teams, handHistory, trickHistory) -> Card:
         """
         Plays a card from the player's hand based on game and strategy
 
@@ -80,7 +90,7 @@ class Player:
                                        handHistory, 
                                        trickHistory)
     
-    def passOrPlay(self, teams: List[Team], faceUpCard: Card | None, biddingOrder):
+    def passOrPlay(self, teams, faceUpCard, biddingOrder): # faceUpCard is Card | None
         """
         Decision to pass or play in bidding phase based on strategy
 
@@ -98,7 +108,7 @@ class Player:
         """
         return self.strategy.chooseTrump(self)
 
-    def shouldGoAlone(self, teams: List[Team], trumpSuit):
+    def shouldGoAlone(self, teams, trumpSuit):
         """
         Decides whether to go alone or not based on the strategy
 

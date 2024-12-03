@@ -13,6 +13,10 @@ class Team:
         """
         self.p1 = p1
         self.p2 = p2
+        self.p1.partner = p2
+        self.p2.partner = p1
+        self.p1.setTeam(self)
+        self.p2.setTeam(self)
         self.declaredTrump: bool = False
         self.euchreScore: int = 0
         self.handScore: int = 0
@@ -31,7 +35,7 @@ class Team:
         """
         self.euchreScore += addedPoints
     
-    def addHandePoints(self, addedPoints: int):
+    def addHandPoints(self, addedPoints: int):
         """
         add Hand points (points in a specific hand)
         """
