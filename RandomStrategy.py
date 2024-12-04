@@ -40,11 +40,13 @@ class RandomStrategy(Strategy):
                  leadSuit,
                  teams: List[Team],
                  handHistory, 
-                 trickHistory) -> Card:
+                 trickHistory):
         """
         Randomly select a legal card to play from hand.
         Must follow suit if possible.
         """
+        if player.partner.isGoingAlone:
+            return None
         # If a suit was led, must follow suit if possible
         if leadSuit:
             matching_cards = [card for card in player.cardsInHand if card.suit == leadSuit]

@@ -80,10 +80,6 @@ class Hand:
         self.trumpSuit = bidding.trump
         if bidding.goAloneGuy:
             bidding.goAloneGuy.isGoingAlone = True
-            partner = bidding.goAloneGuy.partner
-            partner.cardsInHand = [Card("2","H"),Card("2","H"),Card("2","H"),Card("2","H"),Card("2","H")]# TODO clean this up
-            # ^ assumes 2 of Hearts is unused and there are 5 tricks
-            # self.order.remove(bidding.goAloneGuy.partner) CAN'T REMOVE PERSON FROM ORDER
     
     def playTricks(self):
         """
@@ -118,6 +114,8 @@ class Hand:
             Player: The player who won the trick
         """
         leadCard = self.recentTrick[0]
+        if leadCard == None:
+            leadCard = self.recentTrick[1]
         leadSuit = leadCard.suit
         leadPlayerId = self.recentTrick[-1]
         
@@ -127,11 +125,7 @@ class Hand:
         # Map cards to their players in play order
         cards_played = self.recentTrick[:-1]  # Get just the cards
         player_indices = [(leadPlayerIndex + i) % 4 for i in range(4)]  # Get indices in play order
-        print(str([cards_played,player_indices]))
-        for team in self.teams:
-            if team.isGoingAlone():
-                print("someone on " + team.name + " went alone\n")
-        card_player_pairs = list(zip(cards_played, [self.order[i] for i in player_indices]))        
+        card_player_pairs = [(card, player) for card, player in zip(cards_played, [self.order[i] for i in player_indices]) if card is not None]        
         return determineTrickWinner(self.trumpSuit, leadSuit, card_player_pairs)
 
     def handToEuchreScoreConv(self):

@@ -69,7 +69,7 @@ class Strategy(ABC):
                  leadSuit,
                  teams: List[Team],
                  handHistory, 
-                 trickHistory) -> Card:
+                 trickHistory):
         """
         determine which card to play when it is your turn
         :param player: the player making the decision
