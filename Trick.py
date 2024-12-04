@@ -28,7 +28,7 @@ class Trick:
         self.order = order
         self.trumpSuit = trumpSuit
         self.handHistory = handHistory
-        self.trickHistory = [0, 0, 0, 0, 0]
+        self.trickHistory = [-1, -1, -1, -1, -1]
     
     def playTrick(self):
         """

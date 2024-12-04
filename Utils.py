@@ -74,3 +74,20 @@ def determineTrickWinner(trumpSuit: str, leadSuit: str, cardPlayerPairs) -> Play
     
     leadSuitPairs = [(card, player) for (card, player) in cardPlayerPairs if card.suit == leadSuit and not card.equalValue(leftBower)]
     return findHighestCardPlayer(leadSuitPairs)
+
+def oneHotCardRepresentation(card):
+    representation = [0 for _ in range(24)]
+    if card == None:
+        return representation
+    
+    cardIdx = CARDIDX[card]
+    representation[cardIdx] = 1
+    return representation
+
+def oneHotPlayerRepresentation(playerId):
+    representation = [0 for _ in range(4)]
+    if playerId == None:
+        return representation
+    representation[playerId] = 1
+    return representation
+    

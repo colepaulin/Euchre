@@ -12,6 +12,16 @@ class Strategy(ABC):
     must follow. Each strategy must implement methods for making key decisions
     during gameplay.
     """
+    @abstractmethod
+    def extractGameState(self, player: Player,
+                         teams: List[Team],
+                         faceUpCard,
+                         biddingOrder: List[Player],
+                         trumpSuit,
+                         leadSuit,
+                         handHistory,
+                         trickHistory):
+        
     
     @abstractmethod
     def passOrPlay(self, player: Player, 
