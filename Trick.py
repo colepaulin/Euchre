@@ -17,7 +17,7 @@ class Trick:
                       where leadPlayerId plays cardA, then next player plays cardB, ...
                       and 0 represents that the player has not played a card
     """
-    def __init__(self, teams: List[Team], order: List[Player], trumpSuit, handHistory):
+    def __init__(self, teams: List[Team], order: List[Player], trumpSuit, handHistory, faceUpCard, faceUp):
         """
         :param teams: list of teams
         :param order: order that the players will be playing
@@ -29,6 +29,8 @@ class Trick:
         self.trumpSuit = trumpSuit
         self.handHistory = handHistory
         self.trickHistory = [-1, -1, -1, -1, -1]
+        self.faceUpCard = faceUpCard
+        self.faceUp = faceUp
     
     def playTrick(self):
         """
@@ -37,23 +39,31 @@ class Trick:
         """
         leadPlayer = self.order[0]
         if not leadPlayer.partner.isGoingAlone:
-            leadCard: Card = leadPlayer.playCard(self.trumpSuit, None, self.teams, self.handHistory, self.trickHistory)
-            self.trickHistory[0] = leadCard
             self.trickHistory[-1] = leadPlayer.id
+            leadCard: Card = leadPlayer.playCard(self.teams, self.faceUpCard, self.faceUp, 
+                                                 self.order,self.trumpSuit, None, 
+                                                 self.handHistory, self.trickHistory, self.order)
+            self.trickHistory[0] = leadCard
             arrIdx = 1
             for player in self.order[1:]:
-                playedCard = player.playCard(self.trumpSuit, leadCard.suit, self.teams, self.handHistory, self.trickHistory)
+                playedCard = player.playCard(self.teams, self.faceUpCard, self.faceUp, 
+                                                 self.order,self.trumpSuit, leadCard.suit, 
+                                                 self.handHistory, self.trickHistory, self.order)
                 self.trickHistory[arrIdx] = playedCard
                 arrIdx += 1
         else:
             leadPlayer = self.order[1]
-            self.trickHistory[0] = None
-            leadCard: Card = leadPlayer.playCard(self.trumpSuit, None, self.teams, self.handHistory, self.trickHistory)
-            self.trickHistory[1] = leadCard
             self.trickHistory[-1] = leadPlayer.id
+            self.trickHistory[0] = None
+            leadCard: Card = leadPlayer.playCard(self.teams, self.faceUpCard, self.faceUp, 
+                                                 self.order,self.trumpSuit, None, 
+                                                 self.handHistory, self.trickHistory, self.order)
+            self.trickHistory[1] = leadCard
             arrIdx = 2
             for player in self.order[2:]:
-                playedCard = player.playCard(self.trumpSuit, leadCard.suit, self.teams, self.handHistory, self.trickHistory)
+                playedCard = player.playCard(self.teams, self.faceUpCard, self.faceUp, 
+                                             self.order,self.trumpSuit, leadCard.suit, 
+                                             self.handHistory, self.trickHistory, self.order)
                 self.trickHistory[arrIdx] = playedCard
                 arrIdx += 1
         

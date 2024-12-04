@@ -3,6 +3,7 @@ from Hand import Hand
 from Deck import Deck
 from Player import Player
 from RandomStrategy import RandomStrategy
+from PPOStrategy import *
 import random
 
 class Euchre:
@@ -75,7 +76,7 @@ class Euchre:
 # main.py
 def main():
     print("Hello, World!")
-    Cole = Player(0, RandomStrategy(), "Cole")
+    Cole = Player(0, PPOStrategy(), "Cole")
     Jack = Player(1, RandomStrategy(), "Jack")
     TGod = Player(2, RandomStrategy(), "TGod")
     Chris = Player(3, RandomStrategy(), "Chris")

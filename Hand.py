@@ -47,6 +47,7 @@ class Hand:
         self.faceUpCard: Card = self.deck.drawCard()
         self.handHistory = []
         self.recentTrick = []
+        self.faceUp = True
     
     def playHand(self):
         """
@@ -73,11 +74,10 @@ class Hand:
         the face up card, and the cards in the players hand. Updates
         all necessary attributes dynamically
         """
-        # TODO FIX TO INCORPORATE BIDDING
-        # bidding.run(self.faceUpCard, self.order)
         bidding = Bidding(self.faceUpCard, self.order, self.teams)
         bidding.run()
         self.trumpSuit = bidding.trump
+        self.faceUp = bidding.faceUp
         if bidding.goAloneGuy:
             bidding.goAloneGuy.isGoingAlone = True
     
@@ -87,7 +87,7 @@ class Hand:
         After each trick, update the handHistory
         """
         for round in range(self.cardsPerPlayer):
-            trick = Trick(self.teams, self.order, self.trumpSuit, self.handHistory)
+            trick = Trick(self.teams, self.order, self.trumpSuit, self.handHistory, self.faceUpCard, self.faceUp)
             self.recentTrick = trick.playTrick()
             self.handHistory.append(self.recentTrick)
             self.updateOrderAndPoints()

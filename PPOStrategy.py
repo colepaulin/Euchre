@@ -43,11 +43,26 @@ class PPOStrategy(Strategy):
                 else:
                     opponentEuchreScore = team.euchreScore
                     opponentHandScore = team.handScore
-            euchreScore = [max(teamEuchreScore / 10, 1), max(opponentEuchreScore / 10, 1)]
+            euchreScore = [min(teamEuchreScore / 10, 1), min(opponentEuchreScore / 10, 1)]
             handScore = [teamHandScore / 5, opponentHandScore / 5]
             return euchreScore + handScore
         
         def extractTrickInfo(handHistory, trickHistory, order):
+            def oneHotCardRepresentation(card):
+                representation = [0 for _ in range(24)]
+                if card == None or card == -1:
+                    return representation
+                
+                cardIdx = cardInd[str(card)]
+                representation[cardIdx] = 1
+                return representation
+
+            def oneHotPlayerRepresentation(playerId):
+                representation = [0 for _ in range(4)]
+                if playerId == None:
+                    return representation
+                representation[playerId] = 1
+                return representation
             trickInfo = []
             
             for trick in handHistory:
@@ -71,42 +86,44 @@ class PPOStrategy(Strategy):
                         nextCard = trick[trickIdx]
                         trickIdx += 1
                     trickInfo.extend(oneHotCardRepresentation(nextCard))
-                    trickInfo.extend(oneHotPlayerRepresentation(nextPlayer.Id))
+                    trickInfo.extend(oneHotPlayerRepresentation(nextPlayer.id))
             # now handle trick history
-            leadTrickPlayer = trickHistory[-1]
-            if leadTrickPlayer == -1:
-                trickInfo.extend(oneHotCardRepresentation(None))
-                trickInfo.extend(oneHotPlayerRepresentation(None))
-
-            leadCard = trickHistory[0]
-            trickIdx = 1
-            if leadCard == None:
-                leadCard = trickHistory[1]
-                trickIdx = 2
-            leadPlayerOrderIdx = order.index(next(player for player in order if player.id == leadPlayerId))
-            orderIdx = leadPlayerOrderIdx
-            trickInfo.extend(oneHotCardRepresentation(leadCard))
-            trickInfo.extend(oneHotPlayerRepresentation(leadTrickPlayer))
-            for _ in range(3):
-                nextPlayer = order[(orderIdx + 1) % 4]
-                orderIdx += 1
-                if trickIdx == 4:
-                    nextCard = trickHistory[0]
-                    trickIdx += 1
-                else:
-                    nextCard = trickHistory[trickIdx]
-                    trickIdx += 1
-                if nextCard == None or nextCard == -1:
+            if trickHistory:
+                leadTrickPlayerId = trickHistory[-1]
+                if leadTrickPlayerId == -1:
                     trickInfo.extend(oneHotCardRepresentation(None))
-                else:
-                    trickInfo.extend(oneHotCardRepresentation(nextCard))
-                trickInfo.extend(oneHotPlayerRepresentation(nextPlayer))
-            
+                    trickInfo.extend(oneHotPlayerRepresentation(None))
+
+                leadCard = trickHistory[0]
+                trickIdx = 1
+                if leadCard == None:
+                    leadCard = trickHistory[1]
+                    trickIdx = 2
+                leadPlayerOrderIdx = order.index(next(player for player in order if player.id == leadTrickPlayerId))
+                orderIdx = leadPlayerOrderIdx
+                trickInfo.extend(oneHotCardRepresentation(leadCard))
+                trickInfo.extend(oneHotPlayerRepresentation(leadTrickPlayerId))
+                for _ in range(3):
+                    nextPlayeId = order[(orderIdx + 1) % 4].id
+                    orderIdx += 1
+                    if trickIdx == 4:
+                        nextCard = trickHistory[0]
+                        trickIdx += 1
+                    else:
+                        nextCard = trickHistory[trickIdx]
+                        trickIdx += 1
+                    if nextCard == None or nextCard == -1:
+                        trickInfo.extend(oneHotCardRepresentation(None))
+                    else:
+                        trickInfo.extend(oneHotCardRepresentation(nextCard))
+                    trickInfo.extend(oneHotPlayerRepresentation(nextPlayeId))
+                
             tricksRemaining = 5 - len(handHistory) - 1
-            for _ in tricksRemaining:
+            for _ in range(tricksRemaining):
                 for _ in range(4):
                     trickInfo.extend(oneHotCardRepresentation(None))
                     trickInfo.extend(oneHotPlayerRepresentation(None))
+            return trickInfo
         
         def extractBiddingState(player: Player, 
                                 faceUpCard, 
@@ -157,13 +174,16 @@ class PPOStrategy(Strategy):
                 handEncoding[cardInd[str(card)]] = 1
 
             encoding.extend(handEncoding)
+            return encoding
 
         def extractHandInfo(trumpSuit):
             encoding = []
             trumpEncoding = [0]*4
-            trumpEncoding[suitInd[trumpSuit]] = 1
-            encoding.extend(trumpEncoding)
-            return encoding
+            if trumpSuit:
+                trumpEncoding[suitInd[trumpSuit]] = 1
+                encoding.extend(trumpEncoding)
+                return encoding
+            return trumpEncoding
         
         encoding = []
         encoding.extend(extractScoreInfo(player, teams))
@@ -185,8 +205,8 @@ class PPOStrategy(Strategy):
                          trickHistory,
                          order):
         print("GAME STATE: \n", self.extractGameState(player, teams, faceUpCard,
-                                                      faceUp, biddingOrder, trumpSuit, 
-                                                      leadSuit, handHistory, trickHistory, order))
+                                                 faceUp, biddingOrder, trumpSuit, 
+                                                 leadSuit, handHistory, trickHistory, order))
         return random.choice([True, False])
 
 

@@ -66,15 +66,42 @@ class Player:
         """
         self.cardsInHand.extend(newCards)
     
-    def discard(self):
+    def discard(self,
+                teams,
+                faceUpCard,
+                faceUp,
+                biddingOrder,
+                trumpSuit,
+                leadSuit,
+                handHistory,
+                trickHistory,
+                order):
         """
         Discards a card from the player's hand based on their strategy
         Assumes 1 extra card in player cardsInHand.
         """
-        self.strategy.discard(self)
+        self.strategy.discard(self,
+                teams,
+                faceUpCard,
+                faceUp,
+                biddingOrder,
+                trumpSuit,
+                leadSuit,
+                handHistory,
+                trickHistory,
+                order)
 
     
-    def playCard(self, trumpSuit, leadSuit, teams, handHistory, trickHistory) -> Card:
+    def playCard(self,
+                teams,
+                faceUpCard,
+                faceUp,
+                biddingOrder,
+                trumpSuit,
+                leadSuit,
+                handHistory,
+                trickHistory,
+                order):
         """
         Plays a card from the player's hand based on game and strategy
 
@@ -85,13 +112,26 @@ class Player:
         :param trickHistory: see Trick Class
         """
         return self.strategy.playCard(self,
-                                       trumpSuit, 
-                                       leadSuit, 
-                                       teams, 
-                                       handHistory, 
-                                       trickHistory)
+                teams,
+                faceUpCard,
+                faceUp,
+                biddingOrder,
+                trumpSuit,
+                leadSuit,
+                handHistory,
+                trickHistory,
+                order)
     
-    def passOrPlay(self, teams, faceUpCard, biddingOrder): # faceUpCard is Card | None
+    def passOrPlay(self,
+                teams,
+                faceUpCard,
+                faceUp,
+                biddingOrder,
+                trumpSuit,
+                leadSuit,
+                handHistory,
+                trickHistory,
+                order):
         """
         Decision to pass or play in bidding phase based on strategy
 
@@ -100,16 +140,52 @@ class Player:
         :param biddingOrder: list of players which represents the bidding order
         :return: True if player plays, false otherwise
         """
-        return self.strategy.passOrPlay(self, teams, faceUpCard, biddingOrder)
+        return self.strategy.passOrPlay(self,
+                teams,
+                faceUpCard,
+                faceUp,
+                biddingOrder,
+                trumpSuit,
+                leadSuit,
+                handHistory,
+                trickHistory,
+                order)
     
-    def chooseTrump(self):
+    def chooseTrump(self,
+                teams,
+                faceUpCard,
+                faceUp,
+                biddingOrder,
+                trumpSuit,
+                leadSuit,
+                handHistory,
+                trickHistory,
+                order):
         """
         Player chooses the optimal trump suit in a face down bidding round based on
         their hand
         """
-        return self.strategy.chooseTrump(self)
+        return self.strategy.chooseTrump(self,
+                teams,
+                faceUpCard,
+                faceUp,
+                biddingOrder,
+                trumpSuit,
+                leadSuit,
+                handHistory,
+                trickHistory,
+                order)
 
-    def shouldGoAlone(self, teams, trumpSuit):
+    def shouldGoAlone(self,
+                teams,
+                faceUpCard,
+                faceUp,
+                biddingOrder,
+                trumpSuit,
+                leadSuit,
+                handHistory,
+                trickHistory,
+                order):
         """
         Decides whether to go alone or not based on the strategy
 
@@ -117,7 +193,16 @@ class Player:
         :param trumpSuit: The trump suit
         :returns True if going alone, false otherwise
         """
-        return self.strategy.shouldGoAlone(self, trumpSuit, teams)
+        return self.strategy.shouldGoAlone(self,
+                teams,
+                faceUpCard,
+                faceUp,
+                biddingOrder,
+                trumpSuit,
+                leadSuit,
+                handHistory,
+                trickHistory,
+                order)
     
     def newHand(self):
         """

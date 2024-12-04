@@ -19,16 +19,19 @@ class Bidding:
         on their strategy
         """
         for player in self.order: # first round (face up card)
-            if player.passOrPlay(self.teams, self.card, self.order):
+            if player.passOrPlay(self.teams, self.card, self.faceUp, self.order,
+                                 None, None, [], [], self.order):
                 dealer = self.order[-1]
                 dealer.addCard(self.card) # add that card to the DEALER'S hand
-                dealer.discard()
                 self.trump = self.card.suit
                 player.declaredTrump = True
                 player.team.declaredTrump = True
+                dealer.discard(self.teams, self.card, self.faceUp, self.order,
+                                 self.trump, None, [], [], self.order)
                 
                 # make modular
-                if player.shouldGoAlone(self.teams, self.trump): # logic for going alone
+                if player.shouldGoAlone(self.teams, self.card, self.faceUp, self.order,
+                                        self.trump, None, [], [], self.order):
                     self.goAloneGuy = player
                 else:
                     for team in self.teams:
@@ -36,19 +39,23 @@ class Bidding:
                             partner = team.p2
                         elif team.p2 == player:
                             partner = team.p1
-                    if partner.shouldGoAlone(self.teams, self.trump):
+                    if partner.shouldGoAlone(self.teams, self.card, self.faceUp, self.order,
+                                            self.trump, None, [], [], self.order):
                         self.goAloneGuy = partner
 
                 return None # exit bidding
         
-        faceUp = False # might be redundant if we just pass None into the card argument anyways
+        self.faceUp = False # might be redundant if we just pass None into the card argument anyways
         for player in self.order: # second round (face down card)
-            if player.passOrPlay(self.teams, None, self.order):
-                self.trump = player.chooseTrump() # once the decision has been made to play, choose trump
+            if player.passOrPlay(self.teams, self.card, self.faceUp, self.order,
+                                    None, None, [], [], self.order):
+                self.trump = player.chooseTrump(self.teams, self.card, self.faceUp, self.order,
+                                    None, None, [], [], self.order)
                 player.declaredTrump = True
                 player.team.declaredTrump = True
 
-                if player.shouldGoAlone(self.teams, self.trump): # logic for going alone
+                if player.shouldGoAlone(self.teams, self.card, self.faceUp, self.order,
+                                        self.trump, None, [], [], self.order): # logic for going alone
                     self.goAloneGuy = player
                 else:
                     for team in self.teams:
@@ -56,18 +63,21 @@ class Bidding:
                             partner = team.p2
                         elif team.p2 == player:
                             partner = team.p1
-                    if partner.shouldGoAlone(self.teams, self.trump):
+                    if partner.shouldGoAlone(self.teams, self.card, self.faceUp, self.order,
+                                            self.trump, None, [], [], self.order):
                         self.goAloneGuy = partner
 
                 return None # exit bidding
         
         if self.trump == None: # dealer is screwed
             dealer = self.order[-1]
-            self.trump = dealer.chooseTrump()
+            self.trump = dealer.chooseTrump(self.teams, self.card, self.faceUp, self.order,
+                                            None, None, [], [], self.order)
             dealer.declaredTrump = True
             dealer.team.declaredTrump = True
             
-            if dealer.shouldGoAlone(self.teams, self.trump): # logic for going alone
+            if dealer.shouldGoAlone(self.teams, self.card, self.faceUp, self.order,
+                                    self.trump, None, [], [], self.order): # logic for going alone
                     self.goAloneGuy = dealer
             else:
                 for team in self.teams:
@@ -75,7 +85,8 @@ class Bidding:
                         partner = team.p2
                     elif team.p2 == dealer:
                         partner = team.p1
-                if partner.shouldGoAlone(self.teams, self.trump):
+                if partner.shouldGoAlone(self.teams, self.card, self.faceUp, self.order,
+                                            self.trump, None, [], [], self.order):
                     self.goAloneGuy = partner
             
             return None # exit bidding
