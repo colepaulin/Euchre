@@ -6,6 +6,11 @@ from RandomStrategy import RandomStrategy
 from PPOStrategy import *
 import random
 
+from torch import torch
+from torch.optim import Adam
+from EuchrePPOModel import EuchrePPOModel
+from PPOAgent import PPOAgent
+
 class Euchre:
     """
     Represents a game of Euchre
@@ -71,7 +76,30 @@ class Euchre:
             return self.t2
         else:
             return False
+        
+    def calculate_reward(self, player):
+        pass
 
+    def step(self, player, action):
+        """
+        Processes the action taken by a specific player and updates the game state.
+
+        Args:
+            player: The player taking the action.
+            action: The action taken by the player (e.g., card played, bid made).
+
+        Returns:
+            next_state: The updated game state after the action.
+            reward: The reward for the acting player.
+            done: Boolean indicating if the game (or hand) is over.
+        """
+        # 1. apply an action
+        # 2. compute reward for acting player
+        # 3. check if the game or phase is over
+        # 4. return the updated state, reward, and done flag
+
+        # in the training loop, make sure to loop through this step function for each player
+        pass
         
 # main.py
 def main():
@@ -86,6 +114,45 @@ def main():
 
     game = Euchre(Republicans, Democrats, )
     game.playEuchre()
+
+    '''
+    EXAMPLE GAME LOOP
+    
+    # Initialize model, optimizer, and agent
+    input_dim = 300  # Adjust based on game state encoding size
+    action_dim = 24  # Number of possible actions (cards)
+    model = EuchrePPOModel(input_dim, action_dim)
+    optimizer = Adam(model.parameters(), lr=1e-4)
+    agent = PPOAgent(model, optimizer, action_dim)
+
+    # Training loop
+    for episode in range(1000):
+        state = game.reset()
+        done = False
+        states, actions, rewards, log_probs, dones = [], [], [], [], []
+
+        while not done:
+            state_tensor = torch.tensor(state, dtype=torch.float32)
+            logits, _ = model(state_tensor)
+            action_probs = torch.softmax(logits, dim=-1)
+            action = torch.multinomial(action_probs, 1).item()
+
+            # Take the action in the game
+            next_state, reward, done = game.step(action)
+
+            # Log data for PPO
+            states.append(state_tensor)
+            actions.append(action)
+            rewards.append(reward)
+            log_probs.append(torch.log(action_probs[action]))
+            dones.append(done)
+
+            state = next_state
+
+        # Update the PPO agent
+        agent.update(states, actions, log_probs, rewards, dones)
+    '''
+
 
 if __name__ == "__main__":
     main()

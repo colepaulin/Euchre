@@ -15,3 +15,12 @@ Fix circular imports
 update Player.team and Player.partner
 need to add the player back into the order after going alone
 quick fix by filling in the partner-of-the-go-alone-guy's hand with 2s
+
+1.	Check State Encoding: Ensure your extractGameState provides consistent and normalized tensors.
+2.	Hyperparameters: Experiment with learning rate, number of PPO updates, and clip epsilon.
+3.	Reward Design: Ensure the rewards are meaningful and guide the agent toward desired behavior.
+4.	Evaluation: Periodically evaluate the strategy to see how it improves over random or heuristic baselines.
+
+1. Keep action_dim Fixed
+2. Generate an Action Mask in game logic / loop
+3. Apply the Mask to Action Probabilities
