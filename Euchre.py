@@ -44,12 +44,11 @@ class Euchre:
     def playEuchre(self):
         """
         Simulate the Game of Euchre. Play a hand then check for winner
-
-        :returns the winning team
         """
         while True:
             self.playNewHand()
             winner = self.checkWinner()
+            self.order = self.order[1:] + [self.order[0]]
             if winner:
                 print(f"Game over! {winner.name} wins with a score of {winner.euchreScore}!")
                 return winner
@@ -76,10 +75,10 @@ class Euchre:
 # main.py
 def main():
     print("Hello, World!")
-    Cole = Player(0, RandomStrategy())
-    Jack = Player(1, RandomStrategy())
-    TGod = Player(2, RandomStrategy())
-    Chris = Player(3, RandomStrategy())
+    Cole = Player(0, RandomStrategy(), "Cole")
+    Jack = Player(1, RandomStrategy(), "Jack")
+    TGod = Player(2, RandomStrategy(), "TGod")
+    Chris = Player(3, RandomStrategy(), "Chris")
 
     Republicans = Team(Cole, Jack, "Republicans")
     Democrats = Team(TGod, Chris, "Democrats")

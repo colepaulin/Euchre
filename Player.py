@@ -5,7 +5,7 @@ class Player:
     """
     Represents a player in the Euchre game.
     """
-    def __init__(self, id: int, strategy):
+    def __init__(self, id: int, strategy, name: str):
         """
         Initializes a Player instance with a unique identifier and a strategy for gameplay.
 
@@ -21,6 +21,7 @@ class Player:
         self.isGoingAlone: bool = False
         self.partner: Player
         self.team = None
+        self.name = name
 
     def setTeam(self, team):
         self.team = team

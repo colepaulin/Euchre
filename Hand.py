@@ -90,17 +90,21 @@ class Hand:
             trick = Trick(self.teams, self.order, self.trumpSuit, self.handHistory)
             self.recentTrick = trick.playTrick()
             self.handHistory.append(self.recentTrick)
-            self.updateOrderAfterTrick()
+            self.updateOrderAndPoints()
     
-    def updateOrderAfterTrick(self):
+    def updateOrderAndPoints(self):
         """
         Update the order based on the previous trick.
         Whichever player won the previous trick will go first. 
         The rotation order will stay the same
         """
-        winnerId = self.trickWinner().id
-        winnerIndex = next(i for i, p in enumerate(self.order) if p.id == winnerId)
+        winner = self.trickWinner()
+        winnerIndex = next(i for i, p in enumerate(self.order) if p.id == winner.id)
         self.order = self.order[winnerIndex:] + self.order[:winnerIndex]
+        for team in self.teams:
+            if team.p1.id == winner.id or team.p2.id == winner.id:
+                team.addHandPoints(1)
+        
 
     def trickWinner(self) -> Player:
         """

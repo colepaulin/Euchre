@@ -57,5 +57,6 @@ class RandomStrategy(Strategy):
         # If no matching cards or no lead suit, can play any card
         chosen_card = random.choice(player.cardsInHand)
         player.cardsInHand.remove(chosen_card)
+        player.cardsPlayed.append(chosen_card)
         return chosen_card
         
