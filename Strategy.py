@@ -16,18 +16,27 @@ class Strategy(ABC):
     def extractGameState(self, player: Player,
                          teams: List[Team],
                          faceUpCard,
+                         faceUp,
                          biddingOrder: List[Player],
                          trumpSuit,
                          leadSuit,
                          handHistory,
-                         trickHistory):
+                         trickHistory,
+                         order):
+        pass
         
     
     @abstractmethod
-    def passOrPlay(self, player: Player, 
-                   teams: List[Team], 
-                   faceUpCard, # Card | None
-                   biddingOrder: List[Player]) -> bool:
+    def passOrPlay(self, player: Player,
+                         teams: List[Team],
+                         faceUpCard,
+                         faceUp,
+                         biddingOrder: List[Player],
+                         trumpSuit,
+                         leadSuit,
+                         handHistory,
+                         trickHistory,
+                         order):
         """
         The strategy to pass or play in the bidding stage. A player must know
         the score to the game, if there is a face up card or not, and the bidding order
@@ -42,7 +51,16 @@ class Strategy(ABC):
         pass
 
     @abstractmethod
-    def chooseTrump(self, player: Player) -> str:
+    def chooseTrump(self, player: Player,
+                         teams: List[Team],
+                         faceUpCard,
+                         faceUp,
+                         biddingOrder: List[Player],
+                         trumpSuit,
+                         leadSuit,
+                         handHistory,
+                         trickHistory,
+                         order):
         """
         Player chooses the optimal trump suit in a face down bidding round based on
         their hand
@@ -50,7 +68,16 @@ class Strategy(ABC):
         pass
 
     @abstractmethod
-    def discard(self, player: Player):
+    def discard(self, player: Player,
+                         teams: List[Team],
+                         faceUpCard,
+                         faceUp,
+                         biddingOrder: List[Player],
+                         trumpSuit,
+                         leadSuit,
+                         handHistory,
+                         trickHistory,
+                         order):
         """
         After a dealer picks up a card, they have 6 cards in hand,
         so they must discard 1 card
@@ -60,9 +87,16 @@ class Strategy(ABC):
         pass
 
     @abstractmethod
-    def shouldGoAlone(self, player: Player, 
-                      trumpSuit, 
-                      teams: List[Team]) -> bool:
+    def shouldGoAlone(self, player: Player,
+                         teams: List[Team],
+                         faceUpCard,
+                         faceUp,
+                         biddingOrder: List[Player],
+                         trumpSuit,
+                         leadSuit,
+                         handHistory,
+                         trickHistory,
+                         order):
         """
         Decides whether to go alone or not
 
@@ -74,12 +108,16 @@ class Strategy(ABC):
         pass
 
     @abstractmethod
-    def playCard(self, player: Player, 
-                 trumpSuit,
-                 leadSuit,
-                 teams: List[Team],
-                 handHistory, 
-                 trickHistory):
+    def playCard(self, player: Player,
+                         teams: List[Team],
+                         faceUpCard,
+                         faceUp,
+                         biddingOrder: List[Player],
+                         trumpSuit,
+                         leadSuit,
+                         handHistory,
+                         trickHistory,
+                         order):
         """
         determine which card to play when it is your turn
         :param player: the player making the decision

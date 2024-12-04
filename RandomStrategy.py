@@ -13,17 +13,25 @@ class RandomStrategy(Strategy):
     def extractGameState(self, player: Player,
                          teams: List[Team],
                          faceUpCard,
+                         faceUp,
                          biddingOrder: List[Player],
                          trumpSuit,
                          leadSuit,
                          handHistory,
-                         trickHistory):
+                         trickHistory,
+                         order):
         pass
 
-    def passOrPlay(self, player: Player, 
-                   teams: List[Team], 
-                   faceUpCard, #: Card | None, 
-                   biddingOrder: List[Player]) -> bool:
+    def passOrPlay(self, player: Player,
+                         teams: List[Team],
+                         faceUpCard,
+                         faceUp,
+                         biddingOrder: List[Player],
+                         trumpSuit,
+                         leadSuit,
+                         handHistory,
+                         trickHistory,
+                         order):
         """
         randomly decide to pass or play. 
         :returns True if Play, false otherwise
@@ -31,25 +39,54 @@ class RandomStrategy(Strategy):
         return random.choice([True, False])
 
 
-    def discard(self, player: Player):
+    def discard(self, player: Player,
+                         teams: List[Team],
+                         faceUpCard,
+                         faceUp,
+                         biddingOrder: List[Player],
+                         trumpSuit,
+                         leadSuit,
+                         handHistory,
+                         trickHistory,
+                         order):
         if player.cardsInHand:
             card_to_discard = random.choice(player.cardsInHand)
             player.cardsInHand.remove(card_to_discard)
 
-    def shouldGoAlone(self, player: Player, 
-                      trumpSuit, 
-                      teams: List[Team]) -> bool:
+    def shouldGoAlone(self, player: Player,
+                         teams: List[Team],
+                         faceUpCard,
+                         faceUp,
+                         biddingOrder: List[Player],
+                         trumpSuit,
+                         leadSuit,
+                         handHistory,
+                         trickHistory,
+                         order):
         return random.choice([True, False])
     
-    def chooseTrump(self, player: Player):
+    def chooseTrump(self, player: Player,
+                         teams: List[Team],
+                         faceUpCard,
+                         faceUp,
+                         biddingOrder: List[Player],
+                         trumpSuit,
+                         leadSuit,
+                         handHistory,
+                         trickHistory,
+                         order):
         return random.choice(['H','C','S','D'])
 
-    def playCard(self, player: Player, 
-                 trumpSuit,
-                 leadSuit,
-                 teams: List[Team],
-                 handHistory, 
-                 trickHistory):
+    def playCard(self, player: Player,
+                         teams: List[Team],
+                         faceUpCard,
+                         faceUp,
+                         biddingOrder: List[Player],
+                         trumpSuit,
+                         leadSuit,
+                         handHistory,
+                         trickHistory,
+                         order):
         """
         Randomly select a legal card to play from hand.
         Must follow suit if possible.

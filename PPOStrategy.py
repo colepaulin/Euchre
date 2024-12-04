@@ -11,6 +11,8 @@ cardInd = {"9 of H": 0, "10 of H": 1, "Jack of H": 2, "Queen of H": 3, "King of 
             "9 of C": 12, "10 of C": 13, "Jack of C": 14, "Queen of C": 15, "King of C": 16, "Ace of C": 17,
             "9 of S": 18, "10 of S": 19, "Jack of S": 20, "Queen of S": 21, "King of S": 22, "Ace of S": 23}
 
+suitInd = {"H": 0, "D": 1, "S": 2, "C": 3}
+
 class PPOStrategy(Strategy):
     """
     A simple strategy that makes all decisions randomly.
@@ -19,12 +21,14 @@ class PPOStrategy(Strategy):
     def extractGameState(self, player: Player,
                          teams: List[Team],
                          faceUpCard,
+                         faceUp,
                          biddingOrder: List[Player],
                          trumpSuit,
                          leadSuit,
                          handHistory,
                          trickHistory,
                          order):
+        
         def extractScoreInfo(player, teams):
             """
             returns [player euchre score (norm),
@@ -103,69 +107,164 @@ class PPOStrategy(Strategy):
                 for _ in range(4):
                     trickInfo.extend(oneHotCardRepresentation(None))
                     trickInfo.extend(oneHotPlayerRepresentation(None))
-
-
-        gameInfo = extractScoreInfo(player, teams)
-        trickInfo = extractTrickInfo(handHistory, trickHistory, order)
-
+        
+        def extractBiddingState(player: Player, 
+                                faceUpCard, 
+                                faceUp, 
+                                biddingOrder):
+            """
+            faceUpCard = card object offered for bidding
+            faceUp = whether the card is still on the table or open bidding is occurring
+            """
+            encoding = []
+            cardEncoding = [0]*24
+            cardEncoding[cardInd[str(faceUpCard)]] = 1
+            encoding.extend(cardEncoding)
             
-        
+            if faceUp:
+                encoding.append(1)
+            else:
+                encoding.append(0)
+            
+            orderEncoding = [0]*4
+            playerPosition = biddingOrder.index(player)
+            orderEncoding[playerPosition] = 1
+            encoding.extend(orderEncoding)
 
-    def extractBiddingState(self, player: Player, faceUpCard, faceUp, biddingOrder):
-        """
-        faceUpCard = card object offered for bidding
-        faceUp = whether the card is still on the table or open bidding is occurring
-        """
-        encoding = []
-        cardEncoding = [0]*24
-        cardEncoding[cardInd[str(faceUpCard)]] = 1
-        encoding.extend(cardEncoding)
-        
-        if faceUp:
-            encoding.append(1)
-        else:
-            encoding.append(0)
-        
-        orderEncoding = [0]*4
-        playerPosition = biddingOrder.index(player)
-        orderEncoding[playerPosition] = 1
-        encoding.extend(orderEncoding)
-
-        declaredTrumpEncoding = [0]*4
-        for p in biddingOrder:
-            if p.declaredTrump:
+            declaredTrumpEncoding = [0]*4
+            declaredGoingAloneEncoding = [0]*4
+            isDealerEncoding = [0]*4
+            for p in biddingOrder:
                 pPosition = biddingOrder.index(p)
-                declaredTrumpEncoding[pPosition] = 1
-        encoding.extend(declaredTrumpEncoding)
+                if p.declaredTrump:
+                    declaredTrumpEncoding[pPosition] = 1
+                if p.isGoingAlone:
+                    declaredGoingAloneEncoding[pPosition] = 1
+                if p.isDealer:
+                    isDealerEncoding[pPosition] = 1
+                    
+            encoding.extend(declaredTrumpEncoding)
+            encoding.extend(declaredGoingAloneEncoding)
+            encoding.extend(isDealerEncoding)
 
+            return encoding
+
+        def extractPlayerInfo(player: Player):
+            encoding = []
+            handEncoding = [0]*24
+
+            for card in player.cardsInHand:
+                handEncoding[cardInd[str(card)]] = 1
+
+            encoding.extend(handEncoding)
+
+        def extractHandInfo(trumpSuit):
+            encoding = []
+            trumpEncoding = [0]*4
+            trumpEncoding[suitInd[trumpSuit]] = 1
+            encoding.extend(trumpEncoding)
+            return encoding
+        
+        encoding = []
+        encoding.extend(extractScoreInfo(player, teams))
+        encoding.extend(extractPlayerInfo(player))
+        encoding.extend(extractBiddingState(player, faceUpCard, faceUp, biddingOrder))
+        encoding.extend(extractTrickInfo(handHistory, trickHistory, order))
+        encoding.extend(extractHandInfo(trumpSuit))
+        
         return encoding
 
-    def passOrPlay(self, player: Player, 
-                   teams: List[Team], 
-                   faceUpCard, #: Card | None, 
-                   biddingOrder: List[Player]) -> bool:
-        pass
+    def passOrPlay(self, player: Player,
+                         teams: List[Team],
+                         faceUpCard,
+                         faceUp,
+                         biddingOrder: List[Player],
+                         trumpSuit,
+                         leadSuit,
+                         handHistory,
+                         trickHistory,
+                         order):
+        print("GAME STATE: \n", self.extractGameState(player, teams, faceUpCard,
+                                                      faceUp, biddingOrder, trumpSuit, 
+                                                      leadSuit, handHistory, trickHistory, order))
+        return random.choice([True, False])
 
 
-    def discard(self, player: Player):
-        pass
+    def discard(self, player: Player,
+                         teams: List[Team],
+                         faceUpCard,
+                         faceUp,
+                         biddingOrder: List[Player],
+                         trumpSuit,
+                         leadSuit,
+                         handHistory,
+                         trickHistory,
+                         order):
+        print("GAME STATE: \n", self.extractGameState(player, teams, faceUpCard,
+                                                      faceUp, biddingOrder, trumpSuit, 
+                                                      leadSuit, handHistory, trickHistory, order))
+        if player.cardsInHand:
+            card_to_discard = random.choice(player.cardsInHand)
+            player.cardsInHand.remove(card_to_discard)
 
-    def shouldGoAlone(self, player: Player, 
-                      trumpSuit, 
-                      teams: List[Team]) -> bool:
-        pass
+    def shouldGoAlone(self, player: Player,
+                         teams: List[Team],
+                         faceUpCard,
+                         faceUp,
+                         biddingOrder: List[Player],
+                         trumpSuit,
+                         leadSuit,
+                         handHistory,
+                         trickHistory,
+                         order):
+        print("GAME STATE: \n", self.extractGameState(player, teams, faceUpCard,
+                                                      faceUp, biddingOrder, trumpSuit, 
+                                                      leadSuit, handHistory, trickHistory, order))
+        return random.choice([True, False])
     
-    def chooseTrump(self, player: Player):
-        pass
-
-    def playCard(self, player: Player, 
-                 trumpSuit,
-                 leadSuit,
-                 teams: List[Team],
-                 handHistory, 
-                 trickHistory):
-        pass
+    def chooseTrump(self, player: Player,
+                         teams: List[Team],
+                         faceUpCard,
+                         faceUp,
+                         biddingOrder: List[Player],
+                         trumpSuit,
+                         leadSuit,
+                         handHistory,
+                         trickHistory,
+                         order):
+        print("GAME STATE: \n", self.extractGameState(player, teams, faceUpCard,
+                                                      faceUp, biddingOrder, trumpSuit, 
+                                                      leadSuit, handHistory, trickHistory, order))
+        return random.choice(['H','C','S','D'])
+    
+    def playCard(self, player: Player,
+                         teams: List[Team],
+                         faceUpCard,
+                         faceUp,
+                         biddingOrder: List[Player],
+                         trumpSuit,
+                         leadSuit,
+                         handHistory,
+                         trickHistory,
+                         order):
+        print("GAME STATE: \n", self.extractGameState(player, teams, faceUpCard,
+                                                      faceUp, biddingOrder, trumpSuit, 
+                                                      leadSuit, handHistory, trickHistory, order))
+        if player.partner.isGoingAlone:
+            return None
+        # If a suit was led, must follow suit if possible
+        if leadSuit:
+            matching_cards = [card for card in player.cardsInHand if card.suit == leadSuit]
+            if matching_cards:
+                chosen_card = random.choice(matching_cards)
+                player.cardsInHand.remove(chosen_card)
+                return chosen_card
         
+        # If no matching cards or no lead suit, can play any card
+        chosen_card = random.choice(player.cardsInHand)
+        player.cardsInHand.remove(chosen_card)
+        player.cardsPlayed.append(chosen_card)
+        return chosen_card
 
 # main.py
 def main():

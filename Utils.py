@@ -1,6 +1,7 @@
 from Player import Player
 from Card import Card
 from typing import List
+from PPOStrategy import cardInd 
 
 def determineTrickWinner(trumpSuit: str, leadSuit: str, cardPlayerPairs) -> Player: # : List[(Card, Player)]
     def getComplementSuit(trumpSuit: str) -> str:
@@ -80,7 +81,7 @@ def oneHotCardRepresentation(card):
     if card == None:
         return representation
     
-    cardIdx = CARDIDX[card]
+    cardIdx = cardInd[card]
     representation[cardIdx] = 1
     return representation
 
