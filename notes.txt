@@ -14,3 +14,4 @@ does Hand.leadPlayerIndex() work?
 Fix circular imports
 update Player.team and Player.partner
 need to add the player back into the order after going alone
+quick fix by filling in the partner-of-the-go-alone-guy's hand with 2s
