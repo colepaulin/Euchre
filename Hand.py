@@ -99,11 +99,17 @@ class Hand:
         The rotation order will stay the same
         """
         winner = self.trickWinner()
+        loser = self.teams[0] if self.teams[1].p1.id == winner.p1.id else self.teams[1]
         winnerIndex = next(i for i, p in enumerate(self.order) if p.id == winner.id)
         self.order = self.order[winnerIndex:] + self.order[:winnerIndex]
         for team in self.teams:
             if team.p1.id == winner.id or team.p2.id == winner.id:
                 team.addHandPoints(1)
+                team.p1.reward = 1
+                team.p2.reward = 1
+            else:
+                team.p1.reward = -1
+                team.p2.reward = -1
         
 
     def trickWinner(self) -> Player:
@@ -149,15 +155,31 @@ class Hand:
 
         if trumpTeamScore == 5 and trumpTeam.isGoingAlone():
             trumpTeam.addEuchrePoints(GOING_ALONE_MARCH_SCORE)
+            trumpTeam.p1.reward = GOING_ALONE_MARCH_SCORE*10
+            trumpTeam.p2.reward = GOING_ALONE_MARCH_SCORE*10
+            nonTrumpTeam.p1.reward = -GOING_ALONE_MARCH_SCORE*10
+            nonTrumpTeam.p2.reward = -GOING_ALONE_MARCH_SCORE*10
 
         elif trumpTeamScore == 5:
             trumpTeam.addEuchrePoints(MARCH_SCORE)
+            trumpTeam.p1.reward = MARCH_SCORE*10
+            trumpTeam.p2.reward = MARCH_SCORE*10
+            nonTrumpTeam.p1.reward = -MARCH_SCORE*10
+            nonTrumpTeam.p2.reward = -MARCH_SCORE*10
         
         elif trumpTeamScore >= 3:
             trumpTeam.addEuchrePoints(MAJORITY_TRICK_SCORE)
+            trumpTeam.p1.reward = MAJORITY_TRICK_SCORE*10
+            trumpTeam.p2.reward = MAJORITY_TRICK_SCORE*10
+            nonTrumpTeam.p1.reward = -MAJORITY_TRICK_SCORE*10
+            nonTrumpTeam.p2.reward = -MAJORITY_TRICK_SCORE*10
         
         else:
             nonTrumpTeam.addEuchrePoints(EUCHRE_SCORE)
+            trumpTeam.p1.reward = MAJORITY_TRICK_SCORE*10
+            trumpTeam.p2.reward = MAJORITY_TRICK_SCORE*10
+            nonTrumpTeam.p1.reward = -MAJORITY_TRICK_SCORE*10
+            nonTrumpTeam.p2.reward = -MAJORITY_TRICK_SCORE*10
             
 
 

@@ -63,7 +63,7 @@ class PPO:
 
     def update(self):
         """Update the actor and critic networks using PPO."""
-        states, actions, rewards, next_states, old_action_probs = zip(*self.)
+        states, actions, rewards, next_states, old_action_probs = zip(*self.memory)
 
         # Convert to tensors
         states = torch.FloatTensor(states)

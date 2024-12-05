@@ -56,6 +56,8 @@ class Euchre:
             winner = self.checkWinner()
             self.order = self.order[1:] + [self.order[0]]
             if winner:
+                winner.p1.reward = 100
+                winner.p2.reward = 100
                 print(f"Game over! {winner.name} wins with a score of {winner.euchreScore}!")
                 return winner
     
