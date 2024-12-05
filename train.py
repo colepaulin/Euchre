@@ -52,6 +52,10 @@ def plot_training_progress(actor_losses, critic_losses, total_rewards, wins, los
     plt.legend()
 
     plt.tight_layout()
+    
+    # Save the plot as an image
+    plt.savefig("training_progress.png")
+
     plt.show()
 
 def initializeNewEuchre(ppo):
