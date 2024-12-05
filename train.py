@@ -11,8 +11,48 @@ import matplotlib.pyplot as plt
 
 # Initialize PPO Strategy
 state_dim = 633  # State vector size
-action_dim = 19  # Action space size (e.g., number of cards in hand)
+action_dim = 20  # Action space size (e.g., number of cards in hand)
 ppo: PPO = PPO(state_dim=state_dim, action_dim=action_dim)  # Your PPO model
+
+def plot_training_progress(actor_losses, critic_losses, total_rewards, wins, losses):
+    """Plot training progress for actor/critic losses, rewards, and win/loss counts."""
+    plt.figure(figsize=(15, 8))
+
+    # Actor loss
+    plt.subplot(2, 2, 1)
+    plt.plot(actor_losses, label="Actor Loss")
+    plt.xlabel("Game Number")
+    plt.ylabel("Loss")
+    plt.title("Actor Loss Progress")
+    plt.legend()
+
+    # Critic loss
+    plt.subplot(2, 2, 2)
+    plt.plot(critic_losses, label="Critic Loss")
+    plt.xlabel("Game Number")
+    plt.ylabel("Loss")
+    plt.title("Critic Loss Progress")
+    plt.legend()
+
+    # Total rewards
+    plt.subplot(2, 2, 3)
+    plt.plot(total_rewards, label="Total Rewards")
+    plt.xlabel("Game Number")
+    plt.ylabel("Rewards")
+    plt.title("Reward Progress")
+    plt.legend()
+
+    # Wins and losses
+    plt.subplot(2, 2, 4)
+    plt.plot(wins, label="Wins", color="green")
+    plt.plot(losses, label="Losses", color="red")
+    plt.xlabel("Game Number")
+    plt.ylabel("Count")
+    plt.title("Wins and Losses Over Time")
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
 
 def initializeNewEuchre(ppo):
     # Initialize Players
@@ -33,61 +73,49 @@ def train_ppo(ppo, num_games=1000):
     actor_losses = []
     critic_losses = []
     total_rewards = []
+    wins = []
+    losses = []
+    win_count = 0
+    loss_count = 0
+
     for game_num in range(num_games):
         print(f"Starting game {game_num + 1}")
         
         # Initialize game
         game = initializeNewEuchre(ppo)
         total_reward = 0
-        game.playEuchre()
+        winner = game.playEuchre()
+
+        # Check if PPO player won or lost
+        if winner.p1.id == 0 or winner.p2.id == 0:  # PPO player wins
+            ppo.totalReward += 100
+            ppo.memory[-1] = (ppo.memory[-1][0], ppo.memory[-1][1], ppo.memory[-1][2] + 100, ppo.memory[-1][3], ppo.memory[-1][4], 1)
+            win_count += 1
+        else:  # PPO player loses
+            ppo.totalReward -= 100
+            ppo.memory[-1] = (ppo.memory[-1][0], ppo.memory[-1][1], ppo.memory[-1][2] - 100, ppo.memory[-1][3], ppo.memory[-1][4], 1)
+            loss_count += 1
+
         total_reward = ppo.totalReward
-        # After the game, update PPO with collected memory
+
+        # Update PPO model after the game
         actor_loss, critic_loss = ppo.update()
 
         # Log metrics
         actor_losses.append(actor_loss)
         critic_losses.append(critic_loss)
         total_rewards.append(total_reward)
+        wins.append(win_count)
+        losses.append(loss_count)
 
         # Optional: Save the model periodically
         if (game_num + 1) % 100 == 0:
             torch.save(ppo.actor.state_dict(), f"ppo_actor_{game_num + 1}.pth")
             torch.save(ppo.critic.state_dict(), f"ppo_critic_{game_num + 1}.pth")
             print(f"Model saved at game {game_num + 1}.")
-        
-        plot_training_progress(actor_losses, critic_losses, total_rewards)
+
+    return (actor_losses, critic_losses, total_rewards, wins, losses)
 
 # Train the model
-train_ppo(ppo, num_games=1000)
-
-
-def plot_training_progress(actor_losses, critic_losses, total_rewards):
-    """Plot training progress for actor/critic losses and rewards."""
-    plt.figure(figsize=(12, 4))
-
-    # Actor loss
-    plt.subplot(1, 3, 1)
-    plt.plot(actor_losses, label="Actor Loss")
-    plt.xlabel("Training Iteration")
-    plt.ylabel("Loss")
-    plt.title("Actor Loss Progress")
-    plt.legend()
-
-    # Critic loss
-    plt.subplot(1, 3, 2)
-    plt.plot(critic_losses, label="Critic Loss")
-    plt.xlabel("Training Iteration")
-    plt.ylabel("Loss")
-    plt.title("Critic Loss Progress")
-    plt.legend()
-
-    # Total rewards
-    plt.subplot(1, 3, 3)
-    plt.plot(total_rewards, label="Total Rewards")
-    plt.xlabel("Game Number")
-    plt.ylabel("Total Rewards")
-    plt.title("Reward Progress")
-    plt.legend()
-
-    plt.tight_layout()
-    plt.show()
+(actor_losses, critic_losses, total_rewards, wins, losses) = train_ppo(ppo, num_games=1000)
+plot_training_progress(actor_losses, critic_losses, total_rewards, wins, losses)

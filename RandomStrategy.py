@@ -194,12 +194,6 @@ class RandomStrategy(Strategy):
         encoding.extend(biddingInfo)
         encoding.extend(trickInfo)
         encoding.extend(handInfo)
-        print("Length of score info:", len(scoreInfo))
-        print("Length of player info:", len(playerInfo))
-        print("Length of bidding info:", len(biddingInfo))
-        print("Length of trick info:", len(trickInfo))
-        print("Length of hand info:", len(handInfo), "\n")
-        
         return encoding
 
 

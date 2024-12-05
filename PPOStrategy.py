@@ -388,7 +388,7 @@ class PPOStrategy(Strategy):
         self.ppo.updateMemory()
         player.reward = 0
         actionProbs = self.ppo.predict_action(gameState)
-        actionProbsMask = chooseTrumpActionMask(actionProbs)
+        actionProbsMask = chooseTrumpActionMask(actionProbs, faceUpCard)
         actionIdx = self.ppo.sample_action(actionProbsMask)
         self.ppo.state = gameState
         self.ppo.recentAction = actionIdx
@@ -424,11 +424,11 @@ class PPOStrategy(Strategy):
                     maskedActionProbs = actionProbs * actionProbsMask
                     return maskedActionProbs
             
-            actionProbsMask[14] = 1
-            actionProbsMask[15] = 1
-            actionProbsMask[16] = 1
-            actionProbsMask[17] = 1
-            actionProbsMask[18] = 1
+            actionProbsMask[14] = 1 if len(player.cardsInHand) >= 1 else 0
+            actionProbsMask[15] = 1 if len(player.cardsInHand) >= 2 else 0
+            actionProbsMask[16] = 1 if len(player.cardsInHand) >= 3 else 0
+            actionProbsMask[17] = 1 if len(player.cardsInHand) >= 4 else 0
+            actionProbsMask[18] = 1 if len(player.cardsInHand) >= 5 else 0
             maskedActionProbs = actionProbs * actionProbsMask
             return maskedActionProbs
         
@@ -452,7 +452,7 @@ class PPOStrategy(Strategy):
         player.reward = 0
 
         actionProbs = self.ppo.predict_action(gameState)
-        actionProbsMask = PlayCardActionMask(actionProbs)
+        actionProbsMask = PlayCardActionMask(actionProbs, player, leadSuit)
         actionIdx = self.ppo.sample_action(actionProbsMask)
         self.ppo.state = gameState
         self.ppo.recentAction = actionIdx

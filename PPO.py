@@ -12,7 +12,7 @@ class PPO:
         self.recentActionProb = None
         self.state = None
         self.nextState = None
-        self.reward = None
+        self.reward = 0
         self.totalReward = 0
 
         # Actor Network
@@ -52,25 +52,25 @@ class PPO:
         return action_probs
 
     def compute_advantage(self, rewards, values):
-        """Compute advantages and returns."""
-        returns = []
-        discounted_sum = 0
-        for reward in reversed(rewards):
-            discounted_sum = reward + self.gamma * discounted_sum
-            returns.insert(0, discounted_sum)
-        returns = np.array(returns)
-        advantages = returns - np.array(values)
-        return advantages, returns
+      """Compute advantages and returns."""
+      returns = []
+      discounted_sum = 0
+      for reward in reversed(rewards):
+          discounted_sum = reward + self.gamma * discounted_sum
+          returns.insert(0, discounted_sum)
+      
+      returns = torch.FloatTensor(returns)  # Ensure returns is a PyTorch tensor
+      advantages = returns - values  # Subtract PyTorch tensor `values`
+      return advantages, returns
 
     def update(self):
         """Update the actor and critic networks using PPO and return losses."""
         states, actions, rewards, next_states, old_action_probs = zip(*self.memory)
-
         # Convert to tensors
-        states = torch.FloatTensor(states)
-        actions = torch.LongTensor(actions)
-        rewards = torch.FloatTensor(rewards)
-        old_action_probs = torch.FloatTensor(old_action_probs)
+        states = torch.FloatTensor(states[1:])
+        actions = torch.LongTensor(actions[1:])
+        rewards = torch.FloatTensor(rewards[1:])
+        old_action_probs = torch.FloatTensor(old_action_probs[1:])
 
         # Compute value predictions
         values = self.critic(states).squeeze(-1).detach().numpy()
@@ -92,7 +92,8 @@ class PPO:
             actor_loss.backward()
             self.actor_optimizer.step()
 
-            actor_losses.append(actor_loss.item())
+            # Append the detached loss
+            actor_losses.append(actor_loss.detach().item())
 
         # Update critic network
         values = self.critic(states).squeeze(-1)
@@ -102,10 +103,25 @@ class PPO:
         critic_loss.backward()
         self.critic_optimizer.step()
 
+        self.memory = []
+        self.totalReward = 0
+
         # Return the average actor loss and critic loss
         return np.mean(actor_losses), critic_loss.item()
 
     def sample_action(self, action_probs):
         """Sample an action based on the predicted probabilities."""
         
-        return np.random.choice(len(action_probs), p=action_probs)
+        total_prob = sum(action_probs)
+        if total_prob == 0:
+            raise ValueError("All action probabilities are zero after masking. Check your masking logic.")
+        
+        normalized_probs = [p / total_prob for p in action_probs]
+        
+        # Sample an action using the normalized probabilities
+        try:
+            return np.random.choice(len(normalized_probs), p=normalized_probs)
+        except ValueError as e:
+            print("Error sampling action:", e)
+            print("Normalized probabilities:", normalized_probs)
+            return None

@@ -49,6 +49,7 @@ class Euchre:
         """
         Simulate the Game of Euchre. Play a hand then check for winner
         """
+
         while True:
             self.playNewHand()
             winner = self.checkWinner()
