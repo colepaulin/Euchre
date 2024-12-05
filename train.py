@@ -2,6 +2,7 @@ from Player import Player
 from Team import Team
 from RandomStrategy import RandomStrategy
 from PPOStrategy import PPOStrategy
+from GreedyStrategy import GreedyStrategy
 from Euchre import Euchre
 from PPO import PPO
 import torch
@@ -61,9 +62,9 @@ def plot_training_progress(actor_losses, critic_losses, total_rewards, wins, los
 def initializeNewEuchre(ppo):
     # Initialize Players
     player1 = Player(0, PPOStrategy(ppo), "PPO_Player")
-    player2 = Player(1, RandomStrategy(), "Rand1_partner")
-    player3 = Player(2, RandomStrategy(), "Rand2_opp")
-    player4 = Player(3, RandomStrategy(), "Rand3_opp")
+    player2 = Player(1, GreedyStrategy(), "Rand1_partner")
+    player3 = Player(2, GreedyStrategy(), "Rand2_opp")
+    player4 = Player(3, GreedyStrategy(), "Rand3_opp")
 
     # Set up teams
     team1 = Team(player1, player2, "Team1")

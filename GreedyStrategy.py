@@ -4,13 +4,14 @@ from typing import List
 from Card import Card
 from Player import Player
 from Team import Team
+from Utils import getLowerRank, getHigherRank
 cardInd = {"9 of H": 0, "10 of H": 1, "Jack of H": 2, "Queen of H": 3, "King of H": 4, "Ace of H": 5,
             "9 of D": 6, "10 of D": 7, "Jack of D": 8, "Queen of D": 9, "King of D": 10, "Ace of D": 11,
             "9 of C": 12, "10 of C": 13, "Jack of C": 14, "Queen of C": 15, "King of C": 16, "Ace of C": 17,
             "9 of S": 18, "10 of S": 19, "Jack of S": 20, "Queen of S": 21, "King of S": 22, "Ace of S": 23}
 
 suitInd = {"H": 0, "D": 1, "S": 2, "C": 3}
-class RandomStrategy(Strategy):
+class GreedyStrategy(Strategy):
     """
     A simple strategy that makes all decisions randomly.
     This can serve as a baseline for comparing other strategies.
@@ -211,8 +212,10 @@ class RandomStrategy(Strategy):
         randomly decide to pass or play. 
         :returns True if Play, false otherwise
         """
-        return random.choice([True, False])
-
+        numTrumps = sum(1 for card in player.cardsInHand if card.suit == faceUpCard.suit)
+        if numTrumps >= 2:
+            return True
+        return False
 
     def discard(self, player: Player,
                          teams: List[Team],
@@ -224,9 +227,26 @@ class RandomStrategy(Strategy):
                          handHistory,
                          trickHistory,
                          order):
-        if player.cardsInHand:
-            card_to_discard = random.choice(player.cardsInHand)
-            player.cardsInHand.remove(card_to_discard)
+        toDiscard = None
+        for card in player.cardsInHand:
+            # throw lowest non-trump
+            if card.suit == trumpSuit and toDiscard == None: # Must select if not card selected, even tho trump
+                toDiscard = card
+            elif card.suit == trumpSuit and toDiscard != None: # already have a "best" card
+                if toDiscard.suit == trumpSuit:
+                    toDiscard = getLowerRank(toDiscard, card) # select lowest of trump cards
+                # else we will still want to throw discard as it is nontrump
+            elif card.suit != trumpSuit and toDiscard == None:
+                toDiscard = card
+            else: # card is not trump and current discard exists
+                if toDiscard.suit == trumpSuit:
+                    toDiscard = card
+                else:
+                    toDiscard = getLowerRank(card, toDiscard)
+        
+        if toDiscard:
+            player.cardsInHand.remove(toDiscard)
+            player.cardsPlayed.append(toDiscard)
 
     def shouldGoAlone(self, player: Player,
                          teams: List[Team],
@@ -238,7 +258,10 @@ class RandomStrategy(Strategy):
                          handHistory,
                          trickHistory,
                          order):
-        return random.choice([True, False])
+        numTrumps = sum(1 for card in player.cardsInHand if card.suit == faceUpCard.suit)
+        if numTrumps >= 4:
+            return True
+        return False
     
     def chooseTrump(self, player: Player,
                          teams: List[Team],
@@ -250,7 +273,11 @@ class RandomStrategy(Strategy):
                          handHistory,
                          trickHistory,
                          order):
-        return random.choice(['H','C','S','D'])
+        suit_counts = {"H": 0, "D": 0, "C": 0, "S": 0}
+        for card in player.cardsInHand:
+            suit_counts[card.suit] += 1
+        most_common_suit = max(suit_counts, key=suit_counts.get)
+        return most_common_suit
 
     def playCard(self, player: Player,
                          teams: List[Team],
@@ -272,12 +299,19 @@ class RandomStrategy(Strategy):
         if leadSuit:
             matching_cards = [card for card in player.cardsInHand if card.suit == leadSuit]
             if matching_cards:
-                chosen_card = random.choice(matching_cards)
-                player.cardsInHand.remove(chosen_card)
+                highest_card = max(matching_cards, key=lambda card: getHigherRank(card, None))
+                player.cardsInHand.remove(highest_card)
+                player.cardsPlayed.append(highest_card)
                 return chosen_card
         
+
+        
         # If no matching cards or no lead suit, can play any card
-        chosen_card = random.choice(player.cardsInHand)
+        trump_cards = [card for card in player.cardsInHand if card.suit == trumpSuit]
+        if trump_cards:
+            chosen_card = max(trump_cards, key=lambda card: getHigherRank(card, None))
+        else:
+            chosen_card = max(player.cardsInHand, key=lambda card: getHigherRank(card, None))
         player.cardsInHand.remove(chosen_card)
         player.cardsPlayed.append(chosen_card)
         return chosen_card

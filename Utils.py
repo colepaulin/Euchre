@@ -17,24 +17,6 @@ def determineTrickWinner(trumpSuit: str, leadSuit: str, cardPlayerPairs) -> Play
         else: 
             return "C"
     
-    def getHigherRank(cardA, cardB) -> Card: # cardA : Card | None
-        """
-        returns the card with highest absolute rank. If a card is none, the other card wins.
-        Both cannot be none
-        """
-        #assert cardA | cardB  # this assertion was throwing errors *shrug*
-        if cardA == None:
-            return cardB
-        if cardB == None:
-            return cardA
-        all_ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"]
-        rankA = all_ranks.index(cardA.rank)
-        rankB = all_ranks.index(cardB.rank)
-        if rankA > rankB:
-            return cardA
-        else:
-            return cardB
-    
     def findBestTrump(trumpCardPairs) -> Player: # trumpCardPairs : List[(Card, Player)]
         """
         return the best card of the trumpcardpairs
@@ -75,4 +57,39 @@ def determineTrickWinner(trumpSuit: str, leadSuit: str, cardPlayerPairs) -> Play
     
     leadSuitPairs = [(card, player) for (card, player) in cardPlayerPairs if card.suit == leadSuit and not card.equalValue(leftBower)]
     return findHighestCardPlayer(leadSuitPairs)
-    
+
+def getHigherRank(cardA, cardB) -> Card: # cardA : Card | None
+        """
+        returns the card with highest absolute rank. If a card is none, the other card wins.
+        Both cannot be none
+        """
+        #assert cardA | cardB  # this assertion was throwing errors *shrug*
+        if cardA == None:
+            return cardB
+        if cardB == None:
+            return cardA
+        all_ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"]
+        rankA = all_ranks.index(cardA.rank)
+        rankB = all_ranks.index(cardB.rank)
+        if rankA > rankB:
+            return cardA
+        else:
+            return cardB
+        
+def getLowerRank(cardA, cardB) -> Card: # cardA : Card | None
+        """
+        returns the card with highest absolute rank. If a card is none, the other card wins.
+        Both cannot be none
+        """
+        #assert cardA | cardB  # this assertion was throwing errors *shrug*
+        if cardA == None:
+            return cardB
+        if cardB == None:
+            return cardA
+        all_ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"]
+        rankA = all_ranks.index(cardA.rank)
+        rankB = all_ranks.index(cardB.rank)
+        if rankA < rankB:
+            return cardA
+        else:
+            return cardB
