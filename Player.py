@@ -22,6 +22,7 @@ class Player:
         self.partner: Player
         self.team = None
         self.name = name
+        self.reward = 0
 
     def setTeam(self, team):
         self.team = team

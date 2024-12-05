@@ -4,6 +4,7 @@ from typing import List
 from Card import Card
 from Player import Player
 from Team import Team
+from PPO import PPO
 from Utils import *
 
 cardInd = {"9 of H": 0, "10 of H": 1, "Jack of H": 2, "Queen of H": 3, "King of H": 4, "Ace of H": 5,
@@ -18,6 +19,9 @@ class PPOStrategy(Strategy):
     A simple strategy that makes all decisions randomly.
     This can serve as a baseline for comparing other strategies.
     """
+    def __init__(self, ppo):
+        super().__init__()
+        self.ppo: PPO = ppo  # Store the PPO object
     def extractGameState(self, player: Player,
                          teams: List[Team],
                          faceUpCard,
@@ -204,12 +208,32 @@ class PPOStrategy(Strategy):
                          handHistory,
                          trickHistory,
                          order):
+        def passPlayActionMask(actionProbs):
+            """
+            remove unplayable actions
+            """
+            pass
+        def passPlayActionIdxConv(actionIdx):
+            """
+            decide to pass or play based on Idx
+            """
+            pass
+
         gameState = self.extractGameState(player, teams, faceUpCard,
                                                  faceUp, biddingOrder, trumpSuit, 
                                                  leadSuit, handHistory, trickHistory, order)
-        print("GAME STATE: \n", gameState, " of length: ", len(gameState))
-        return random.choice([True, False])
+        self.ppo.nextState = gameState
+        self.ppo.reward = player.reward
+        self.ppo.updateMemory()
+        player.reward = 0
+        actionProbs = self.ppo.predict_action(gameState)
+        actionProbsMask = passPlayActionMask(actionProbs)
+        actionIdx = self.ppo.sample_action(actionProbsMask)
+        self.ppo.state = gameState
+        self.ppo.recentAction = actionIdx
+        self.ppo.recentActionProb = actionProbs[actionIdx]
 
+        return passPlayActionIdxConv(actionIdx)
 
     def discard(self, player: Player,
                          teams: List[Team],
@@ -221,13 +245,30 @@ class PPOStrategy(Strategy):
                          handHistory,
                          trickHistory,
                          order):
+        def discardActionMask(actionProbs):
+            """
+            remove unplayable actions
+            """
+            pass
+        def discardActionIdxConv(actionIdx):
+            """
+            decide a card to discard based on action idx
+            """
         gameState = self.extractGameState(player, teams, faceUpCard,
                                                  faceUp, biddingOrder, trumpSuit, 
                                                  leadSuit, handHistory, trickHistory, order)
-        print("GAME STATE: \n", gameState, " of length: ", len(gameState))
-        if player.cardsInHand:
-            card_to_discard = random.choice(player.cardsInHand)
-            player.cardsInHand.remove(card_to_discard)
+        self.ppo.nextState = gameState
+        self.ppo.reward = player.reward
+        self.ppo.updateMemory()
+        player.reward = 0
+        actionProbs = self.ppo.predict_action(gameState)
+        actionProbsMask = discardActionMask(actionProbs)
+        actionIdx = self.ppo.sample_action(actionProbsMask)
+        self.ppo.state = gameState
+        self.ppo.recentAction = actionIdx
+        self.ppo.recentActionProb = actionProbs[actionIdx]
+
+        return discardActionIdxConv(actionIdx)
 
     def shouldGoAlone(self, player: Player,
                          teams: List[Team],
@@ -239,11 +280,31 @@ class PPOStrategy(Strategy):
                          handHistory,
                          trickHistory,
                          order):
+        def shouldGoAloneActionMask(actionProbs):
+            """
+            remove unplayable actions
+            """
+            pass
+        def shouldGoAloneActionIdxConv(actionIdx):
+            """
+            decide to go alone or not based on actionIdx
+            """
+            pass
         gameState = self.extractGameState(player, teams, faceUpCard,
                                                  faceUp, biddingOrder, trumpSuit, 
                                                  leadSuit, handHistory, trickHistory, order)
-        print("GAME STATE: \n", gameState, " of length: ", len(gameState))
-        return random.choice([True, False])
+        self.ppo.nextState = gameState
+        self.ppo.reward = player.reward
+        self.ppo.updateMemory()
+        player.reward = 0
+        actionProbs = self.ppo.predict_action(gameState)
+        actionProbsMask = shouldGoAloneActionMask(actionProbs)
+        actionIdx = self.ppo.sample_action(actionProbsMask)
+        self.ppo.state = gameState
+        self.ppo.recentAction = actionIdx
+        self.ppo.recentActionProb = actionProbs[actionIdx]
+
+        return shouldGoAloneActionIdxConv(actionIdx)
     
     def chooseTrump(self, player: Player,
                          teams: List[Team],
@@ -255,11 +316,31 @@ class PPOStrategy(Strategy):
                          handHistory,
                          trickHistory,
                          order):
+        def chooseTrumpActionMask(actionProbs):
+            """
+            remove unplayable actions
+            """
+            pass
+        def chooseTrumpActionIdxConv(actionIdx):
+            """
+            decide trump
+            """
+            pass
         gameState = self.extractGameState(player, teams, faceUpCard,
                                                  faceUp, biddingOrder, trumpSuit, 
                                                  leadSuit, handHistory, trickHistory, order)
-        print("GAME STATE: \n", gameState, " of length: ", len(gameState))
-        return random.choice(['H','C','S','D'])
+        self.ppo.nextState = gameState
+        self.ppo.reward = player.reward
+        self.ppo.updateMemory()
+        player.reward = 0
+        actionProbs = self.ppo.predict_action(gameState)
+        actionProbsMask = chooseTrumpActionMask(actionProbs)
+        actionIdx = self.ppo.sample_action(actionProbsMask)
+        self.ppo.state = gameState
+        self.ppo.recentAction = actionIdx
+        self.ppo.recentActionProb = actionProbs[actionIdx]
+
+        return chooseTrumpActionIdxConv(actionIdx)
     
     def playCard(self, player: Player,
                          teams: List[Team],
@@ -271,25 +352,31 @@ class PPOStrategy(Strategy):
                          handHistory,
                          trickHistory,
                          order):
+        def PlayCardActionMask(actionProbs):
+            """
+            remove unplayable actions
+            """
+            pass
+        def playCardActionIdxConv(actionIdx):
+            """
+            decide card to play based on actionIdx
+            """
+            pass
         gameState = self.extractGameState(player, teams, faceUpCard,
                                                  faceUp, biddingOrder, trumpSuit, 
                                                  leadSuit, handHistory, trickHistory, order)
-        print("GAME STATE: \n", gameState, " of length: ", len(gameState))
-        if player.partner.isGoingAlone:
-            return None
-        # If a suit was led, must follow suit if possible
-        if leadSuit:
-            matching_cards = [card for card in player.cardsInHand if card.suit == leadSuit]
-            if matching_cards:
-                chosen_card = random.choice(matching_cards)
-                player.cardsInHand.remove(chosen_card)
-                return chosen_card
-        
-        # If no matching cards or no lead suit, can play any card
-        chosen_card = random.choice(player.cardsInHand)
-        player.cardsInHand.remove(chosen_card)
-        player.cardsPlayed.append(chosen_card)
-        return chosen_card
+        self.ppo.nextState = gameState
+        self.ppo.reward = player.reward
+        self.ppo.updateMemory()
+        player.reward = 0
+
+        actionProbs = self.ppo.predict_action(gameState)
+        actionProbsMask = PlayCardActionMask(actionProbs)
+        actionIdx = self.ppo.sample_action(actionProbsMask)
+        self.ppo.state = gameState
+        self.ppo.recentAction = actionIdx
+        self.ppo.recentActionProb = actionProbs[actionIdx]
+        return playCardActionIdxConv(actionIdx)
 
 # main.py
 def main():
@@ -298,8 +385,6 @@ def main():
     Jack = Player(1, None, "Jack")
     TGod = Player(2, None, "TGod")
     Chris = Player(3, None, "Chris")
-    Chris.declaredTrump = True
-    print(strat.extractBiddingState(Jack, Card("10","H"), True, [Cole, Jack, TGod, Chris]))
 
 if __name__ == "__main__":
     main()

@@ -7,6 +7,12 @@ class PPO:
     def __init__(self, state_dim, action_dim, lr=3e-4, gamma=0.99, eps_clip=0.2):
         self.gamma = gamma
         self.eps_clip = eps_clip
+        self.memory = [] # Added
+        self.recentAction = None
+        self.recentActionProb = None
+        self.state = None
+        self.nextState = None
+        self.reward = None
 
         # Actor Network
         self.actor = nn.Sequential(
@@ -31,6 +37,13 @@ class PPO:
         self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=lr)
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), lr=lr)
 
+    def updateMemory(self):
+        self.memory.append((self.state, 
+                            self.recentAction, 
+                            self.reward, 
+                            self.nextState, 
+                            self.recentActionProb))
+
     def predict_action(self, state):
         """Predict action probabilities."""
         state_tensor = torch.FloatTensor(state).unsqueeze(0)  # Convert state to tensor
@@ -48,9 +61,9 @@ class PPO:
         advantages = returns - np.array(values)
         return advantages, returns
 
-    def update(self, memory):
+    def update(self):
         """Update the actor and critic networks using PPO."""
-        states, actions, rewards, next_states, dones, old_action_probs = zip(*memory)
+        states, actions, rewards, next_states, old_action_probs = zip(*self.)
 
         # Convert to tensors
         states = torch.FloatTensor(states)
@@ -87,4 +100,5 @@ class PPO:
 
     def sample_action(self, action_probs):
         """Sample an action based on the predicted probabilities."""
+        
         return np.random.choice(len(action_probs), p=action_probs)
