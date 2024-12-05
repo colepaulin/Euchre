@@ -8,8 +8,6 @@ import random
 
 from torch import torch
 from torch.optim import Adam
-from EuchrePPOModel import EuchrePPOModel
-from PPOAgent import PPOAgent
 
 class Euchre:
     """
@@ -106,7 +104,7 @@ class Euchre:
 # main.py
 def main():
     print("Hello, World!")
-    Cole = Player(0, PPOStrategy(), "Cole")
+    Cole = Player(0, RandomStrategy(), "Cole")
     Jack = Player(1, RandomStrategy(), "Jack")
     TGod = Player(2, RandomStrategy(), "TGod")
     Chris = Player(3, RandomStrategy(), "Chris")

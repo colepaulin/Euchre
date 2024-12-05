@@ -1,7 +1,7 @@
 from Player import Player
 from Card import Card
 from typing import List
-from PPOStrategy import cardInd 
+
 
 def determineTrickWinner(trumpSuit: str, leadSuit: str, cardPlayerPairs) -> Player: # : List[(Card, Player)]
     def getComplementSuit(trumpSuit: str) -> str:

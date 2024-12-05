@@ -13,6 +13,7 @@ class PPO:
         self.state = None
         self.nextState = None
         self.reward = None
+        self.totalReward = 0
 
         # Actor Network
         self.actor = nn.Sequential(
@@ -47,7 +48,7 @@ class PPO:
     def predict_action(self, state):
         """Predict action probabilities."""
         state_tensor = torch.FloatTensor(state).unsqueeze(0)  # Convert state to tensor
-        action_probs = self.actor(state_tensor).detach().numpy().flatten()
+        action_probs = self.actor(state_tensor).detach().cpu().numpy().flatten()
         return action_probs
 
     def compute_advantage(self, rewards, values):
@@ -62,7 +63,7 @@ class PPO:
         return advantages, returns
 
     def update(self):
-        """Update the actor and critic networks using PPO."""
+        """Update the actor and critic networks using PPO and return losses."""
         states, actions, rewards, next_states, old_action_probs = zip(*self.memory)
 
         # Convert to tensors
@@ -78,6 +79,7 @@ class PPO:
         advantages, returns = self.compute_advantage(rewards, values)
 
         # Update actor network
+        actor_losses = []
         for _ in range(10):  # Number of epochs
             action_probs = self.actor(states).gather(1, actions.unsqueeze(1)).squeeze(1)
             ratios = action_probs / old_action_probs
@@ -90,6 +92,8 @@ class PPO:
             actor_loss.backward()
             self.actor_optimizer.step()
 
+            actor_losses.append(actor_loss.item())
+
         # Update critic network
         values = self.critic(states).squeeze(-1)
         critic_loss = ((values - torch.FloatTensor(returns)) ** 2).mean()
@@ -97,6 +101,9 @@ class PPO:
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
         self.critic_optimizer.step()
+
+        # Return the average actor loss and critic loss
+        return np.mean(actor_losses), critic_loss.item()
 
     def sample_action(self, action_probs):
         """Sample an action based on the predicted probabilities."""

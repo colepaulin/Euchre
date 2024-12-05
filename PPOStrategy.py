@@ -53,7 +53,7 @@ class PPOStrategy(Strategy):
         
         def extractTrickInfo(handHistory, trickHistory, order):
             def oneHotCardRepresentation(card):
-                representation = [0 for _ in range(24)]
+                representation = [0]*24
                 if card == None or card == -1:
                     return representation
                 
@@ -62,7 +62,7 @@ class PPOStrategy(Strategy):
                 return representation
 
             def oneHotPlayerRepresentation(playerId):
-                representation = [0 for _ in range(4)]
+                representation = [0]*4
                 if playerId == None:
                     return representation
                 representation[playerId] = 1
@@ -92,7 +92,8 @@ class PPOStrategy(Strategy):
                     trickInfo.extend(oneHotCardRepresentation(nextCard))
                     trickInfo.extend(oneHotPlayerRepresentation(nextPlayer.id))
             # now handle trick history
-            if trickHistory:
+            validTrick = trickHistory[-1] != -1
+            if validTrick:
                 leadTrickPlayerId = trickHistory[-1]
                 if leadTrickPlayerId == -1:
                     trickInfo.extend(oneHotCardRepresentation(None))
@@ -122,7 +123,7 @@ class PPOStrategy(Strategy):
                         trickInfo.extend(oneHotCardRepresentation(nextCard))
                     trickInfo.extend(oneHotPlayerRepresentation(nextPlayeId))
                 
-            tricksRemaining = 5 - len(handHistory) - 1
+            tricksRemaining = 5 - len(handHistory) - 1 if validTrick else 5 - len(handHistory)
             for _ in range(tricksRemaining):
                 for _ in range(4):
                     trickInfo.extend(oneHotCardRepresentation(None))
@@ -190,11 +191,21 @@ class PPOStrategy(Strategy):
             return trumpEncoding
         
         encoding = []
-        encoding.extend(extractScoreInfo(player, teams))
-        encoding.extend(extractPlayerInfo(player))
-        encoding.extend(extractBiddingState(player, faceUpCard, faceUp, biddingOrder))
-        encoding.extend(extractTrickInfo(handHistory, trickHistory, order))
-        encoding.extend(extractHandInfo(trumpSuit))
+        scoreInfo = extractScoreInfo(player, teams)
+        playerInfo = extractPlayerInfo(player)
+        biddingInfo = extractBiddingState(player, faceUpCard, faceUp, biddingOrder)
+        trickInfo = extractTrickInfo(handHistory, trickHistory, order)
+        handInfo = extractHandInfo(trumpSuit)
+        encoding.extend(scoreInfo)
+        encoding.extend(playerInfo)
+        encoding.extend(biddingInfo)
+        encoding.extend(trickInfo)
+        encoding.extend(handInfo)
+        # print("Length of score info:", len(scoreInfo))
+        # print("Length of player info:", len(playerInfo))
+        # print("Length of bidding info:", len(biddingInfo))
+        # print("Length of trick info:", len(trickInfo))
+        # print("Length of hand info:", len(handInfo))
         
         return encoding
 
@@ -231,6 +242,7 @@ class PPOStrategy(Strategy):
                                                  leadSuit, handHistory, trickHistory, order)
         self.ppo.nextState = gameState
         self.ppo.reward = player.reward
+        self.ppo.totalReward += player.reward
         self.ppo.updateMemory()
         player.reward = 0
         actionProbs = self.ppo.predict_action(gameState)
@@ -275,6 +287,7 @@ class PPOStrategy(Strategy):
                                                  leadSuit, handHistory, trickHistory, order)
         self.ppo.nextState = gameState
         self.ppo.reward = player.reward
+        self.ppo.totalReward += player.reward
         self.ppo.updateMemory()
         player.reward = 0
         actionProbs = self.ppo.predict_action(gameState)
@@ -319,6 +332,7 @@ class PPOStrategy(Strategy):
                                                  leadSuit, handHistory, trickHistory, order)
         self.ppo.nextState = gameState
         self.ppo.reward = player.reward
+        self.ppo.totalReward += player.reward
         self.ppo.updateMemory()
         player.reward = 0
         actionProbs = self.ppo.predict_action(gameState)
@@ -370,6 +384,7 @@ class PPOStrategy(Strategy):
                                                  leadSuit, handHistory, trickHistory, order)
         self.ppo.nextState = gameState
         self.ppo.reward = player.reward
+        self.ppo.totalReward += player.reward
         self.ppo.updateMemory()
         player.reward = 0
         actionProbs = self.ppo.predict_action(gameState)
@@ -432,6 +447,7 @@ class PPOStrategy(Strategy):
                                                  leadSuit, handHistory, trickHistory, order)
         self.ppo.nextState = gameState
         self.ppo.reward = player.reward
+        self.ppo.totalReward += player.reward
         self.ppo.updateMemory()
         player.reward = 0
 

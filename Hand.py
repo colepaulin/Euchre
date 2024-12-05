@@ -99,7 +99,7 @@ class Hand:
         The rotation order will stay the same
         """
         winner = self.trickWinner()
-        loser = self.teams[0] if self.teams[1].p1.id == winner.p1.id else self.teams[1]
+        loser = self.teams[0] if self.teams[1].p1.id == winner.id else self.teams[1]
         winnerIndex = next(i for i, p in enumerate(self.order) if p.id == winner.id)
         self.order = self.order[winnerIndex:] + self.order[:winnerIndex]
         for team in self.teams:
