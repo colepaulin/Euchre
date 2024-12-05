@@ -6,7 +6,7 @@ from Player import Player
 from Team import Team
 from PPO import PPO
 from Utils import *
-
+import numpy as np
 cardInd = {"9 of H": 0, "10 of H": 1, "Jack of H": 2, "Queen of H": 3, "King of H": 4, "Ace of H": 5,
             "9 of D": 6, "10 of D": 7, "Jack of D": 8, "Queen of D": 9, "King of D": 10, "Ace of D": 11,
             "9 of C": 12, "10 of C": 13, "Jack of C": 14, "Queen of C": 15, "King of C": 16, "Ace of C": 17,
@@ -212,12 +212,19 @@ class PPOStrategy(Strategy):
             """
             remove unplayable actions
             """
-            pass
+            actionProbsMask = np.zeros_like(actionProbs)
+            actionProbsMask[0] = 1
+            actionProbsMask[1] = 1
+            maskedActionProbs = actionProbs * actionProbsMask
+            return maskedActionProbs
+
         def passPlayActionIdxConv(actionIdx):
             """
             decide to pass or play based on Idx
             """
-            pass
+            if actionIdx == 1:
+                return True
+            return False
 
         gameState = self.extractGameState(player, teams, faceUpCard,
                                                  faceUp, biddingOrder, trumpSuit, 
@@ -249,11 +256,20 @@ class PPOStrategy(Strategy):
             """
             remove unplayable actions
             """
-            pass
-        def discardActionIdxConv(actionIdx):
+            actionProbsMask = np.zeros_like(actionProbs)
+            actionProbsMask[2] = 1
+            actionProbsMask[3] = 1
+            actionProbsMask[4] = 1
+            actionProbsMask[5] = 1
+            actionProbsMask[6] = 1
+            actionProbsMask[7] = 1
+            maskedActionProbs = actionProbs * actionProbsMask
+            return maskedActionProbs
+        def discardActionIdxConv(actionIdx, player: Player):
             """
             decide a card to discard based on action idx
             """
+            player.cardsInHand.pop(actionIdx - 2)
         gameState = self.extractGameState(player, teams, faceUpCard,
                                                  faceUp, biddingOrder, trumpSuit, 
                                                  leadSuit, handHistory, trickHistory, order)
@@ -268,7 +284,7 @@ class PPOStrategy(Strategy):
         self.ppo.recentAction = actionIdx
         self.ppo.recentActionProb = actionProbs[actionIdx]
 
-        return discardActionIdxConv(actionIdx)
+        discardActionIdxConv(actionIdx, player)
 
     def shouldGoAlone(self, player: Player,
                          teams: List[Team],
@@ -284,12 +300,20 @@ class PPOStrategy(Strategy):
             """
             remove unplayable actions
             """
-            pass
+            actionProbsMask = np.zeros_like(actionProbs)
+            actionProbsMask[8] = 1
+            actionProbsMask[9] = 1
+            maskedActionProbs = actionProbs * actionProbsMask
+            return maskedActionProbs
+        
         def shouldGoAloneActionIdxConv(actionIdx):
             """
             decide to go alone or not based on actionIdx
             """
-            pass
+            if actionIdx == 8:
+                return True
+            return False
+        
         gameState = self.extractGameState(player, teams, faceUpCard,
                                                  faceUp, biddingOrder, trumpSuit, 
                                                  leadSuit, handHistory, trickHistory, order)
@@ -316,16 +340,31 @@ class PPOStrategy(Strategy):
                          handHistory,
                          trickHistory,
                          order):
-        def chooseTrumpActionMask(actionProbs):
+        def chooseTrumpActionMask(actionProbs, faceUpCard):
             """
             remove unplayable actions
             """
-            pass
+            unavailableSuit = faceUpCard.suit
+            actionProbsMask = np.zeros_like(actionProbs)
+            actionProbsMask[10] = 1 if "H" != unavailableSuit else 0
+            actionProbsMask[11] = 1 if "D" != unavailableSuit else 0
+            actionProbsMask[12] = 1 if "S" != unavailableSuit else 0
+            actionProbsMask[13] = 1 if "C" != unavailableSuit else 0
+            maskedActionProbs = actionProbs * actionProbsMask
+            return maskedActionProbs
+            
         def chooseTrumpActionIdxConv(actionIdx):
             """
             decide trump
             """
-            pass
+            if actionIdx == 10:
+                return "H"
+            elif actionIdx == 11:
+                return "D"
+            elif actionIdx == 12:
+                return "S"
+            else:
+                return "C"
         gameState = self.extractGameState(player, teams, faceUpCard,
                                                  faceUp, biddingOrder, trumpSuit, 
                                                  leadSuit, handHistory, trickHistory, order)
@@ -352,16 +391,42 @@ class PPOStrategy(Strategy):
                          handHistory,
                          trickHistory,
                          order):
-        def PlayCardActionMask(actionProbs):
+        def PlayCardActionMask(actionProbs, player, leadSuit):
             """
             remove unplayable actions
             """
-            pass
+            actionProbsMask = np.zeros_like(actionProbs)
+            if player.partner.isGoingAlone:
+                actionProbsMask[19] = 1
+                maskedActionProbs = actionProbs * actionProbsMask
+                return maskedActionProbs
+            
+            if leadSuit:
+                matching_card_indices = [index for index, card in enumerate(player.cardsInHand) if card.suit == leadSuit]
+                if matching_card_indices:
+                    for cardIdx in matching_card_indices:
+                        actionProbsMask[cardIdx+14] = 1
+                    maskedActionProbs = actionProbs * actionProbsMask
+                    return maskedActionProbs
+            
+            actionProbsMask[14] = 1
+            actionProbsMask[15] = 1
+            actionProbsMask[16] = 1
+            actionProbsMask[17] = 1
+            actionProbsMask[18] = 1
+            maskedActionProbs = actionProbs * actionProbsMask
+            return maskedActionProbs
+        
         def playCardActionIdxConv(actionIdx):
             """
             decide card to play based on actionIdx
             """
-            pass
+            if actionIdx == 19:
+                return None
+            chosen_card = player.cardsInHand[actionIdx-14]
+            player.cardsInHand.remove(chosen_card)
+            player.cardsPlayed.append(chosen_card)
+            return chosen_card
         gameState = self.extractGameState(player, teams, faceUpCard,
                                                  faceUp, biddingOrder, trumpSuit, 
                                                  leadSuit, handHistory, trickHistory, order)

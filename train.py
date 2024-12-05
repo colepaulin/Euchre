@@ -10,7 +10,7 @@ import numpy as np
 
 # Initialize PPO Strategy
 state_dim = 633  # State vector size
-action_dim = 18  # Action space size (e.g., number of cards in hand) TODO
+action_dim = 19  # Action space size (e.g., number of cards in hand) TODO
 ppo = PPO(state_dim=state_dim, action_dim=action_dim)  # Your PPO model
 
 def initializeNewEuchre(ppo):

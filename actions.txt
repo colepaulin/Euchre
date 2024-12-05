@@ -1,11 +1,11 @@
 passOrPlay - [pass, play]
-discard - [card0, card1, card3, card4, card5]
+discard - [card0, card1, card2, card3, card4, card5]
 shouldGoAlone - [goAlone, dontGoAlone]
 chooseTrump - [playHeart, playDiamond, playSpades, playClubs]
 playCard = [playCard1, playCard2, playCard3, playCard4, playCard5, playNoCards]
 
 passOrPlay: 0-1
-discard: 2-6
-shouldGoAlone: 7-8
-chooseTrump: 9-12
-playCard = 13-18
+discard: 2-7
+shouldGoAlone: 8-9
+chooseTrump: 10-13
+playCard = 14-19
