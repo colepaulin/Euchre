@@ -299,20 +299,25 @@ class GreedyStrategy(Strategy):
         if leadSuit:
             matching_cards = [card for card in player.cardsInHand if card.suit == leadSuit]
             if matching_cards:
-                highest_card = max(matching_cards, key=lambda card: getHigherRank(card, None))
-                player.cardsInHand.remove(highest_card)
-                player.cardsPlayed.append(highest_card)
-                return chosen_card
+                chosenCard = None
+                for card in matching_cards:
+                    chosenCard = getHigherRank(chosenCard, card)
+                player.cardsInHand.remove(chosenCard)
+                player.cardsPlayed.append(chosenCard)
+                return chosenCard
         
 
         
         # If no matching cards or no lead suit, can play any card
         trump_cards = [card for card in player.cardsInHand if card.suit == trumpSuit]
+        chosenCard = None
         if trump_cards:
-            chosen_card = max(trump_cards, key=lambda card: getHigherRank(card, None))
+            for card in chosenCard:
+                chosenCard = getHigherRank(chosenCard, card)
         else:
-            chosen_card = max(player.cardsInHand, key=lambda card: getHigherRank(card, None))
-        player.cardsInHand.remove(chosen_card)
-        player.cardsPlayed.append(chosen_card)
-        return chosen_card
+            for card in player.cardsInHand:
+                chosenCard = getHigherRank(chosenCard, card)
+        player.cardsInHand.remove(chosenCard)
+        player.cardsPlayed.append(chosenCard)
+        return chosenCard
         
