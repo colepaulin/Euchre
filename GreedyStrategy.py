@@ -312,7 +312,7 @@ class GreedyStrategy(Strategy):
         trump_cards = [card for card in player.cardsInHand if card.suit == trumpSuit]
         chosenCard = None
         if trump_cards:
-            for card in chosenCard:
+            for card in trump_cards:
                 chosenCard = getHigherRank(chosenCard, card)
         else:
             for card in player.cardsInHand:
