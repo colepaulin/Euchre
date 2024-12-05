@@ -204,9 +204,10 @@ class PPOStrategy(Strategy):
                          handHistory,
                          trickHistory,
                          order):
-        print("GAME STATE: \n", self.extractGameState(player, teams, faceUpCard,
+        gameState = self.extractGameState(player, teams, faceUpCard,
                                                  faceUp, biddingOrder, trumpSuit, 
-                                                 leadSuit, handHistory, trickHistory, order))
+                                                 leadSuit, handHistory, trickHistory, order)
+        print("GAME STATE: \n", gameState, " of length: ", len(gameState))
         return random.choice([True, False])
 
 
@@ -220,9 +221,10 @@ class PPOStrategy(Strategy):
                          handHistory,
                          trickHistory,
                          order):
-        print("GAME STATE: \n", self.extractGameState(player, teams, faceUpCard,
-                                                      faceUp, biddingOrder, trumpSuit, 
-                                                      leadSuit, handHistory, trickHistory, order))
+        gameState = self.extractGameState(player, teams, faceUpCard,
+                                                 faceUp, biddingOrder, trumpSuit, 
+                                                 leadSuit, handHistory, trickHistory, order)
+        print("GAME STATE: \n", gameState, " of length: ", len(gameState))
         if player.cardsInHand:
             card_to_discard = random.choice(player.cardsInHand)
             player.cardsInHand.remove(card_to_discard)
@@ -237,9 +239,10 @@ class PPOStrategy(Strategy):
                          handHistory,
                          trickHistory,
                          order):
-        print("GAME STATE: \n", self.extractGameState(player, teams, faceUpCard,
-                                                      faceUp, biddingOrder, trumpSuit, 
-                                                      leadSuit, handHistory, trickHistory, order))
+        gameState = self.extractGameState(player, teams, faceUpCard,
+                                                 faceUp, biddingOrder, trumpSuit, 
+                                                 leadSuit, handHistory, trickHistory, order)
+        print("GAME STATE: \n", gameState, " of length: ", len(gameState))
         return random.choice([True, False])
     
     def chooseTrump(self, player: Player,
@@ -252,9 +255,10 @@ class PPOStrategy(Strategy):
                          handHistory,
                          trickHistory,
                          order):
-        print("GAME STATE: \n", self.extractGameState(player, teams, faceUpCard,
-                                                      faceUp, biddingOrder, trumpSuit, 
-                                                      leadSuit, handHistory, trickHistory, order))
+        gameState = self.extractGameState(player, teams, faceUpCard,
+                                                 faceUp, biddingOrder, trumpSuit, 
+                                                 leadSuit, handHistory, trickHistory, order)
+        print("GAME STATE: \n", gameState, " of length: ", len(gameState))
         return random.choice(['H','C','S','D'])
     
     def playCard(self, player: Player,
@@ -267,9 +271,10 @@ class PPOStrategy(Strategy):
                          handHistory,
                          trickHistory,
                          order):
-        print("GAME STATE: \n", self.extractGameState(player, teams, faceUpCard,
-                                                      faceUp, biddingOrder, trumpSuit, 
-                                                      leadSuit, handHistory, trickHistory, order))
+        gameState = self.extractGameState(player, teams, faceUpCard,
+                                                 faceUp, biddingOrder, trumpSuit, 
+                                                 leadSuit, handHistory, trickHistory, order)
+        print("GAME STATE: \n", gameState, " of length: ", len(gameState))
         if player.partner.isGoingAlone:
             return None
         # If a suit was led, must follow suit if possible
