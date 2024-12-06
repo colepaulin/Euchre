@@ -22,7 +22,7 @@ class PPO:
             nn.Linear(256, 256),
             nn.ReLU(),
             nn.Linear(256, action_dim),
-            nn.LogSoftmax(dim=-1)
+            nn.Softmax(dim=-1)
         )
 
         # Critic Network
@@ -68,11 +68,12 @@ class PPO:
         """Update the actor and critic networks using PPO and return losses."""
         states, actions, rewards, next_states, old_action_probs = zip(*self.memory)
         # Convert to tensors
-        rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-8)
         states = torch.FloatTensor(states[1:])
         actions = torch.LongTensor(actions[1:])
         rewards = torch.FloatTensor(rewards[1:])
         old_action_probs = torch.FloatTensor(old_action_probs[1:])
+        
+        rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-8)
 
         # Compute value predictions
         values = self.critic(states).squeeze(-1).detach().numpy()
@@ -87,7 +88,7 @@ class PPO:
             ratios = action_probs / old_action_probs
 
             # Clip the objective
-            clipped_ratios = torch.clamp(ratios, 1 - self.eps_clip, 1 + self.eps_clip + 1e-8)
+            clipped_ratios = torch.clamp(ratios, 1 - self.eps_clip, 1 + self.eps_clip)
             actor_loss = -torch.min(ratios * advantages, clipped_ratios * advantages).mean()
 
             self.actor_optimizer.zero_grad()
@@ -112,18 +113,25 @@ class PPO:
         return np.mean(actor_losses), critic_loss.item()
 
     def sample_action(self, action_probs):
-        """Sample an action based on the predicted probabilities."""
-        
-        total_prob = sum(action_probs)
-        if total_prob == 0:
-            raise ValueError("All action probabilities are zero after masking. Check your masking logic.")
-        
-        normalized_probs = [p / total_prob for p in action_probs]
-        
-        # Sample an action using the normalized probabilities
-        try:
-            return np.random.choice(len(normalized_probs), p=normalized_probs)
-        except ValueError as e:
-            print("Error sampling action:", e)
-            print("Normalized probabilities:", normalized_probs)
-            return None
+      """Sample an action based on the predicted log-probabilities."""
+      eps = 0.1  # Small epsilon to prevent zero probabilities
+
+      # Add epsilon to all non-zero probabilities
+      newActionProbs = action_probs + eps * action_probs
+
+      # Normalize the probabilities to sum to 1
+      total_prob = np.sum(newActionProbs)
+      if total_prob == 0:
+          raise ValueError("All action probabilities are zero after masking. Check your masking logic.")
+      
+      normalized_probs = newActionProbs / total_prob
+
+      # Sample an action using the normalized probabilities
+      try:
+          return np.random.choice(len(normalized_probs), p=normalized_probs)
+      except ValueError as e:
+          print("Error sampling action:", e)
+          print("action_probs:", action_probs)
+          print("newActionProbs:", newActionProbs)
+          print("Normalized probabilities:", normalized_probs)
+          return None
