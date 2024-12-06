@@ -442,22 +442,25 @@ class PPOStrategy(Strategy):
             player.cardsInHand.remove(chosen_card)
             player.cardsPlayed.append(chosen_card)
             return chosen_card
-        gameState = self.extractGameState(player, teams, faceUpCard,
-                                                 faceUp, biddingOrder, trumpSuit, 
-                                                 leadSuit, handHistory, trickHistory, order)
-        self.ppo.nextState = gameState
-        self.ppo.reward = player.reward
-        self.ppo.totalReward += player.reward
-        self.ppo.updateMemory()
-        player.reward = 0
+        if not player.partner.isGoingAlone:
+            gameState = self.extractGameState(player, teams, faceUpCard,
+                                                    faceUp, biddingOrder, trumpSuit, 
+                                                    leadSuit, handHistory, trickHistory, order)
+            self.ppo.nextState = gameState
+            self.ppo.reward = player.reward
+            self.ppo.totalReward += player.reward
+            self.ppo.updateMemory()
+            player.reward = 0
 
-        actionProbs = self.ppo.predict_action(gameState)
-        actionProbsMask = PlayCardActionMask(actionProbs, player, leadSuit)
-        actionIdx = self.ppo.sample_action(actionProbsMask)
-        self.ppo.state = gameState
-        self.ppo.recentAction = actionIdx
-        self.ppo.recentActionProb = actionProbs[actionIdx]
-        return playCardActionIdxConv(actionIdx)
+            actionProbs = self.ppo.predict_action(gameState)
+            actionProbsMask = PlayCardActionMask(actionProbs, player, leadSuit)
+            actionIdx = self.ppo.sample_action(actionProbsMask)
+            self.ppo.state = gameState
+            self.ppo.recentAction = actionIdx
+            self.ppo.recentActionProb = actionProbs[actionIdx]
+            return playCardActionIdxConv(actionIdx)
+        else:
+            return None
 
 # main.py
 def main():
