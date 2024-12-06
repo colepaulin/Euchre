@@ -176,10 +176,10 @@ class Hand:
         
         else:
             nonTrumpTeam.addEuchrePoints(EUCHRE_SCORE)
-            trumpTeam.p1.reward = MAJORITY_TRICK_SCORE*10
-            trumpTeam.p2.reward = MAJORITY_TRICK_SCORE*10
-            nonTrumpTeam.p1.reward = -MAJORITY_TRICK_SCORE*10
-            nonTrumpTeam.p2.reward = -MAJORITY_TRICK_SCORE*10
+            trumpTeam.p1.reward = -MAJORITY_TRICK_SCORE*10
+            trumpTeam.p2.reward = -MAJORITY_TRICK_SCORE*10
+            nonTrumpTeam.p1.reward = MAJORITY_TRICK_SCORE*10
+            nonTrumpTeam.p2.reward = MAJORITY_TRICK_SCORE*10
             
 
 

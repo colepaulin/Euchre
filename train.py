@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 # Initialize PPO Strategy
 state_dim = 633  # State vector size
 action_dim = 20  # Action space size (e.g., number of cards in hand)
-ppo: PPO = PPO(state_dim=state_dim, action_dim=action_dim)  # Your PPO model
+ppo: PPO = PPO(state_dim=state_dim, action_dim=action_dim, lr=1e-4)  # Your PPO model
 
 def plot_training_progress(actor_losses, critic_losses, total_rewards, wins, losses):
     """Plot training progress for actor/critic losses, rewards, and win/loss counts."""
@@ -122,5 +122,5 @@ def train_ppo(ppo, num_games=1000):
     return (actor_losses, critic_losses, total_rewards, wins, losses)
 
 # Train the model
-(actor_losses, critic_losses, total_rewards, wins, losses) = train_ppo(ppo, num_games=1000)
+(actor_losses, critic_losses, total_rewards, wins, losses) = train_ppo(ppo, num_games=10000)
 plot_training_progress(actor_losses, critic_losses, total_rewards, wins, losses)
