@@ -22,17 +22,18 @@ class PPO:
             nn.Linear(256, 256),
             nn.ReLU(),
             nn.Linear(256, action_dim),
-            nn.Softmax(dim=-1)
+            nn.LogSoftmax(dim=-1)
         )
 
         # Critic Network
         self.critic = nn.Sequential(
-            nn.Linear(state_dim, 256),
+            nn.Linear(state_dim, 128),
             nn.ReLU(),
-            nn.Linear(256, 256),
+            nn.Linear(128, 64),
             nn.ReLU(),
-            nn.Linear(256, 1)
+            nn.Linear(64, 1)
         )
+
 
         # Optimizers
         self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=lr)
@@ -67,6 +68,7 @@ class PPO:
         """Update the actor and critic networks using PPO and return losses."""
         states, actions, rewards, next_states, old_action_probs = zip(*self.memory)
         # Convert to tensors
+        rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-8)
         states = torch.FloatTensor(states[1:])
         actions = torch.LongTensor(actions[1:])
         rewards = torch.FloatTensor(rewards[1:])
@@ -85,7 +87,7 @@ class PPO:
             ratios = action_probs / old_action_probs
 
             # Clip the objective
-            clipped_ratios = torch.clamp(ratios, 1 - self.eps_clip, 1 + self.eps_clip)
+            clipped_ratios = torch.clamp(ratios, 1 - self.eps_clip, 1 + self.eps_clip + 1e-8)
             actor_loss = -torch.min(ratios * advantages, clipped_ratios * advantages).mean()
 
             self.actor_optimizer.zero_grad()
