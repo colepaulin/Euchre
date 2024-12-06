@@ -2,6 +2,21 @@ import torch
 import torch.nn as nn
 import numpy as np
 
+# Define Clamped Softmax
+class ClampedSoftmax(nn.Module):
+    def __init__(self, dim, min_prob=1e-8):
+        super(ClampedSoftmax, self).__init__()
+        self.dim = dim
+        self.min_prob = min_prob
+
+    def forward(self, x):
+        # Apply softmax
+        probs = nn.functional.softmax(x, dim=self.dim)
+        # Clamp probabilities to avoid zeros or extremely small values
+        probs = torch.clamp(probs, min=self.min_prob)
+        # Re-normalize to ensure probabilities sum to 1
+        return probs / probs.sum(dim=self.dim, keepdim=True)
+
 # Define the PPO model
 class PPO:
     def __init__(self, state_dim, action_dim, lr=3e-4, gamma=0.99, eps_clip=0.2):
@@ -22,7 +37,7 @@ class PPO:
             nn.Linear(256, 256),
             nn.ReLU(),
             nn.Linear(256, action_dim),
-            nn.Softmax(dim=-1)
+            ClampedSoftmax(dim=-1)
         )
 
         # Critic Network

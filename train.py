@@ -13,9 +13,9 @@ import matplotlib.pyplot as plt
 # Initialize PPO Strategy
 state_dim = 633  # State vector size
 action_dim = 20  # Action space size (e.g., number of cards in hand)
-ppo: PPO = PPO(state_dim=state_dim, action_dim=action_dim, lr=5e-5)  # Your PPO model
-
-def plot_training_progress(actor_losses, critic_losses, total_rewards, wins, losses):
+ppo1: PPO = PPO(state_dim=state_dim, action_dim=action_dim, lr=1e-4)  # Your PPO model
+ppo2: PPO = PPO(state_dim=state_dim, action_dim=action_dim, lr=1e-4)  # Your PPO model
+def plot_training_progress(actor_losses, critic_losses, total_rewards, wins, losses, name):
     """Plot training progress for actor/critic losses, rewards, and win/loss counts."""
     plt.figure(figsize=(15, 8))
 
@@ -55,14 +55,14 @@ def plot_training_progress(actor_losses, critic_losses, total_rewards, wins, los
     plt.tight_layout()
     
     # Save the plot as an image
-    plt.savefig("training_progress.png")
+    plt.savefig("training_progress_" + name + ".png")
 
     plt.show()
 
-def initializeNewEuchre(ppo):
+def initializeNewEuchre(ppo1, ppo2):
     # Initialize Players
-    player1 = Player(0, PPOStrategy(ppo), "PPO_Player")
-    player2 = Player(1, GreedyStrategy(), "Rand1_partner")
+    player1 = Player(0, PPOStrategy(ppo1), "PPO_Player")
+    player2 = Player(1, PPOStrategy(ppo2), "PPO1_partner")
     player3 = Player(2, GreedyStrategy(), "Rand2_opp")
     player4 = Player(3, GreedyStrategy(), "Rand3_opp")
 
@@ -74,10 +74,13 @@ def initializeNewEuchre(ppo):
     game = Euchre(team1, team2)
     return game
 
-def train_ppo(ppo, num_games=1000):
-    actor_losses = []
-    critic_losses = []
-    total_rewards = []
+def train_ppo(ppo1, ppo2, num_games=1000):
+    actor_losses1 = []
+    critic_losses1 = []
+    total_rewards1 = []
+    actor_losses2 = []
+    critic_losses2 = []
+    total_rewards2 = []
     wins = []
     losses = []
     win_count = 0
@@ -87,40 +90,53 @@ def train_ppo(ppo, num_games=1000):
         print(f"Starting game {game_num + 1}")
         
         # Initialize game
-        game = initializeNewEuchre(ppo)
+        game = initializeNewEuchre(ppo1, ppo2)
         total_reward = 0
         winner = game.playEuchre()
 
         # Check if PPO player won or lost
         if winner.p1.id == 0 or winner.p2.id == 0:  # PPO player wins
-            ppo.totalReward += 100
-            ppo.memory[-1] = (ppo.memory[-1][0], ppo.memory[-1][1], ppo.memory[-1][2] + 100, ppo.memory[-1][3], ppo.memory[-1][4], 1)
+            ppo1.totalReward += 100
+            ppo1.memory[-1] = (ppo1.memory[-1][0], ppo1.memory[-1][1], ppo1.memory[-1][2] + 100, ppo1.memory[-1][3], ppo1.memory[-1][4], 1)
             win_count += 1
+            ppo2.totalReward += 100
+            ppo2.memory[-1] = (ppo2.memory[-1][0], ppo2.memory[-1][1], ppo2.memory[-1][2] + 100, ppo2.memory[-1][3], ppo2.memory[-1][4], 1)
+            # win_count += 1
         else:  # PPO player loses
-            ppo.totalReward -= 100
-            ppo.memory[-1] = (ppo.memory[-1][0], ppo.memory[-1][1], ppo.memory[-1][2] - 100, ppo.memory[-1][3], ppo.memory[-1][4], 1)
+            ppo1.totalReward -= 100
+            ppo1.memory[-1] = (ppo1.memory[-1][0], ppo1.memory[-1][1], ppo1.memory[-1][2] - 100, ppo1.memory[-1][3], ppo1.memory[-1][4], 1)
             loss_count += 1
+            ppo2.totalReward += 100
+            ppo2.memory[-1] = (ppo2.memory[-1][0], ppo2.memory[-1][1], ppo2.memory[-1][2] + 100, ppo2.memory[-1][3], ppo2.memory[-1][4], 1)
+            # win_count += 1
 
-        total_reward = ppo.totalReward
+        total_reward1 = ppo1.totalReward
+        total_reward2 = ppo2.totalReward
 
         # Update PPO model after the game
-        actor_loss, critic_loss = ppo.update()
+        actor_loss1, critic_loss1 = ppo1.update()
+        actor_loss2, critic_loss2 = ppo2.update()
 
         # Log metrics
-        actor_losses.append(actor_loss)
-        critic_losses.append(critic_loss)
-        total_rewards.append(total_reward)
+        actor_losses1.append(actor_loss1)
+        critic_losses1.append(critic_loss1)
+        total_rewards1.append(total_reward1)
+
+        actor_losses2.append(actor_loss2)
+        critic_losses2.append(critic_loss2)
+        total_rewards2.append(total_reward2)
         wins.append(win_count)
         losses.append(loss_count)
 
         # Optional: Save the model periodically
         if (game_num + 1) % 100 == 0:
-            torch.save(ppo.actor.state_dict(), f"ppo_actor_{game_num + 1}.pth")
-            torch.save(ppo.critic.state_dict(), f"ppo_critic_{game_num + 1}.pth")
+            torch.save(ppo1.actor.state_dict(), f"ppo_actor_{game_num + 1}.pth")
+            torch.save(ppo1.critic.state_dict(), f"ppo_critic_{game_num + 1}.pth")
             print(f"Model saved at game {game_num + 1}.")
 
-    return (actor_losses, critic_losses, total_rewards, wins, losses)
+    return (actor_losses1, critic_losses1, total_rewards1, actor_losses2, critic_losses2, total_rewards2, wins, losses)
 
 # Train the model
-(actor_losses, critic_losses, total_rewards, wins, losses) = train_ppo(ppo, num_games=5000)
-plot_training_progress(actor_losses, critic_losses, total_rewards, wins, losses)
+(actor_losses1, critic_losses1, total_rewards1, actor_losses2, critic_losses2, total_rewards2, wins, losses) = train_ppo(ppo1, ppo2, num_games=5000)
+plot_training_progress(actor_losses1, critic_losses1, total_rewards1, wins, losses, "ppo1")
+plot_training_progress(actor_losses2, critic_losses2, total_rewards2, wins, losses, "ppo2")
